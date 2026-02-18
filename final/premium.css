@@ -1,0 +1,324 @@
+/* Ghar Ko Swad - Premium Modern Light - shared across all pages */
+:root {
+    --ink: #292524;
+    --ink-light: #44403C;
+    --gold: #EA580C;
+    --gold-light: #FB923C;
+    --gold-dark: #C2410C;
+    --cream: #FAFAF9;
+    --cream-warm: #F5F3F0;
+    --surface: #FFFFFF;
+    --nav-bg: #FFFFFF;
+    --footer-bg: #F7F5F3;
+    --text: #1C1917;
+    --text-muted: #57534E;
+    --border: #E7E5E4;
+    --success: #0D9488;
+    --danger: #DC2626;
+    --shadow: rgba(41, 37, 36, 0.06);
+    --shadow-hover: rgba(41, 37, 36, 0.1);
+    --radius: 12px;
+    --radius-sm: 8px;
+}
+
+/* ================= NAVBAR ================= */
+.navbar {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 1rem 0;
+    background: var(--nav-bg);
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 1px 3px var(--shadow);
+    position: relative;
+}
+.navbar::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-light), transparent);
+    opacity: 0.4;
+}
+.navbar.scrolled {
+    box-shadow: 0 4px 24px var(--shadow);
+    padding: 0.6rem 0;
+}
+.navbar-brand {
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    background: linear-gradient(135deg, var(--gold-light), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    transition: all 0.3s ease;
+    padding: 8px 16px;
+    border-radius: 8px;
+}
+.navbar-brand:hover {
+    transform: scale(1.02);
+    filter: drop-shadow(0 2px 8px rgba(234, 88, 12, 0.25));
+}
+.navbar-brand::after {
+    content: '🍳';
+    margin-left: 8px;
+    font-size: 1.4rem;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+.navbar-nav .nav-link,
+.nav-link {
+    position: relative;
+    font-weight: 600;
+    margin: 0 8px;
+    padding: 8px 0 !important;
+    color: var(--text) !important;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+}
+.navbar-nav .nav-link::before,
+.nav-link::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--gold);
+    transition: width 0.3s ease;
+}
+.navbar-nav .nav-link:hover,
+.nav-link:hover {
+    color: var(--gold) !important;
+}
+.navbar-nav .nav-link:hover::before,
+.nav-link:hover::before {
+    width: 100%;
+}
+.navbar-nav .nav-link.active,
+.nav-link.active {
+    color: var(--gold) !important;
+    font-weight: 700;
+}
+.navbar-nav .nav-link.active::before,
+.nav-link.active::before {
+    width: 100%;
+}
+.navbar-nav .nav-link[href="login.html"],
+.navbar-nav .nav-link[href="chef-dashboard.html"],
+.navbar-nav .nav-link[href="register.html"] {
+    background: transparent;
+    color: var(--gold-dark) !important;
+    padding: 8px 20px !important;
+    border-radius: 6px;
+    margin-left: 12px;
+    font-weight: 700;
+    font-size: 0.8rem;
+    border: 2px solid var(--gold);
+    transition: all 0.3s ease;
+}
+.navbar-nav .nav-link[href="login.html"]:hover,
+.navbar-nav .nav-link[href="chef-dashboard.html"]:hover,
+.navbar-nav .nav-link[href="register.html"]:hover {
+    background: var(--gold);
+    color: #FFFFFF !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(234, 88, 12, 0.25);
+}
+.navbar-nav .nav-link[href="login.html"]::before,
+.navbar-nav .nav-link[href="chef-dashboard.html"]::before,
+.navbar-nav .nav-link[href="register.html"]::before {
+    display: none;
+}
+.navbar-nav .nav-link[href="register.html"]::before {
+    display: none;
+}
+.navbar .navbar-toggler {
+    border-color: var(--border);
+}
+.navbar .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23292524' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+/* ================= FOOTER ================= */
+footer {
+    background: var(--footer-bg);
+    border-top: 1px solid var(--border);
+    position: relative;
+    box-shadow: 0 -1px 3px var(--shadow);
+}
+footer::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-light), transparent);
+    opacity: 0.4;
+}
+footer small {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+footer a {
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    color: var(--text);
+}
+footer a:hover {
+    color: var(--gold-dark) !important;
+    transform: translateY(-2px) scale(1.1);
+}
+
+/* ================= BODY & GLOBAL TEXT ================= */
+body {
+    background: var(--cream);
+    color: var(--text) !important;
+    font-weight: 500;
+    font-family: 'Outfit', sans-serif;
+}
+/* Ensure all body text is visible (exclude hero section which uses white text) */
+body:not(.hero-section), body p, body .lead, body small,
+.card-body, .card-body p, .card-body small, .card-body span,
+section:not(.hero-section) p, section:not(.hero-section) .lead, section:not(.hero-section) small,
+section:not(.hero-section) h1, section:not(.hero-section) h2, section:not(.hero-section) h3,
+section:not(.hero-section) h4, section:not(.hero-section) h5, section:not(.hero-section) h6 {
+    color: var(--text) !important;
+}
+body h1:not(.hero-title), body h2, body h3, body h4, body h5, body h6,
+.card-title, .card h1, .card h2, .card h3, .card h4, .card h5, .card h6,
+.section-title, .home-contact h2, .home-contact h3 {
+    color: var(--text) !important;
+}
+.text-brand { color: var(--gold-dark) !important; }
+.text-muted { color: var(--text-muted) !important; }
+small.text-muted, .text-muted { color: var(--text-muted) !important; }
+.text-primary { color: var(--gold) !important; }
+.navbar-brand, .hero-title, .section-title, h1, h2, .card h1, .home-contact h2, .home-contact h3 {
+    font-family: 'Cormorant Garamond', serif;
+}
+
+/* ================= CARDS ================= */
+.card {
+    border-radius: var(--radius);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    box-shadow: 0 1px 2px var(--shadow);
+}
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px var(--shadow-hover);
+    border-color: rgba(234, 88, 12, 0.25);
+}
+.card-title, .card h1, .card h2 {
+    color: var(--text);
+    font-weight: 700;
+}
+.card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(234, 88, 12, 0.06), transparent);
+    transition: left 0.5s ease;
+    z-index: 1;
+    pointer-events: none;
+}
+.card:hover::before {
+    left: 100%;
+}
+
+/* ================= BUTTONS ================= */
+.btn-primary {
+    background: var(--gold);
+    border: 1px solid var(--gold);
+    color: #FFFFFF;
+    box-shadow: 0 1px 3px var(--shadow);
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    transition: all 0.25s ease;
+}
+.btn-primary:hover {
+    background: var(--gold-dark);
+    border-color: var(--gold-dark);
+    color: #FFFFFF;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(234, 88, 12, 0.25);
+}
+.btn-outline-primary {
+    color: var(--ink);
+    border: 1px solid var(--border);
+    background: transparent;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+}
+.btn-outline-primary:hover {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: #FFFFFF;
+}
+
+/* ================= FORMS ================= */
+.form-control, .form-select {
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    transition: all 0.2s ease;
+    padding: 6px 10px;
+    font-size: 0.875rem;
+    min-height: 32px;
+    color: var(--text);
+    background: var(--surface);
+}
+.form-control:focus, .form-select:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 2px rgba(234, 88, 12, 0.15);
+    color: var(--text);
+}
+.form-label, label.form-label, .form-check-label {
+    color: var(--text) !important;
+    font-weight: 600;
+    margin-bottom: 4px;
+    font-size: 0.8125rem;
+}
+textarea.form-control {
+    resize: vertical;
+    font-family: inherit;
+    min-height: 32px;
+    padding: 6px 10px;
+    font-size: 0.875rem;
+    line-height: 1.4;
+}
+a:not(.nav-link):not(.btn) {
+    color: var(--gold-dark);
+    transition: all 0.3s ease;
+}
+a:not(.nav-link):not(.btn):hover {
+    color: var(--gold-dark);
+}
+
+/* ================= ANIMATIONS ================= */
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-14px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+    .navbar-brand { font-size: 1.3rem; }
+    .navbar-nav .nav-link, .nav-link { margin: 0 4px; font-size: 0.8rem; }
+}

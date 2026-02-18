@@ -1,0 +1,375 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Chef Dashboard - Ghar Ko Swad{% endblock %}
+{% block extra_css %}
+<style>
+body { min-height: 100vh; background: linear-gradient(135deg, rgba(255, 255, 255, 0.6), rgba(245, 243, 240, 0.95)), var(--cream, #fafaf9) center/cover; }
+.dashboard-container { display: flex; min-height: calc(100vh - 180px); }
+.dashboard-sidebar { width: 250px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 2rem 0; box-shadow: 2px 0 8px rgba(0, 0, 0, 0.08); position: fixed; height: calc(100vh - 180px); overflow-y: auto; }
+.sidebar-item { padding: 12px 1.5rem; margin-bottom: 8px; color: var(--text-muted, #6b7280); text-decoration: none; display: flex; align-items: center; gap: 12px; transition: all 0.3s ease; cursor: pointer; border-left: 3px solid transparent; }
+.sidebar-item:hover, .sidebar-item.active { color: var(--ink, #1e293b); background: rgba(234, 88, 12, 0.12); border-left-color: var(--gold, #EA580C); }
+.sidebar-item i { font-size: 1.2rem; }
+.main-content { margin-left: 250px; flex-grow: 1; padding: 2rem; }
+.stat-card { background: var(--surface, #fff); border: none; border-radius: 1rem; padding: 1.5rem; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06); transition: all 0.3s ease; animation: fadeUp 0.6s ease-out both; border: 1px solid var(--border, #e5e7eb); }
+.stat-card:hover { transform: translateY(-4px); box-shadow: 0 12px 28px rgba(41, 37, 36, 0.08); border-color: rgba(234, 88, 12, 0.2); }
+.stat-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-right: 1rem; }
+.stat-icon.earnings { background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.1)); color: var(--success, #22c55e); }
+.stat-icon.orders { background: rgba(30, 41, 59, 0.08); color: var(--ink, #1e293b); }
+.stat-icon.reviews { background: rgba(234, 88, 12, 0.18); color: var(--gold, #EA580C); }
+.stat-value { font-size: 1.8rem; font-weight: 700; color: var(--text, #1e293b); }
+.stat-label { color: var(--text-muted, #6b7280); font-size: 0.9rem; margin-top: 4px; }
+.section-title { font-size: 1.5rem; font-weight: 700; color: var(--text, #1e293b); margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 2px solid var(--gold, #EA580C); display: inline-block; }
+.table-container { background: var(--surface, #fff); border-radius: 1rem; padding: 1.5rem; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06); margin-bottom: 2rem; animation: fadeUp 0.6s ease-out both; border: 1px solid var(--border, #e5e7eb); }
+.table thead { background: rgba(30, 41, 59, 0.06); border-bottom: 2px solid var(--gold, #EA580C); }
+.table thead th { color: var(--text, #1e293b); font-weight: 700; padding: 1rem; }
+.table tbody td { padding: 1rem; vertical-align: middle; border-bottom: 1px solid var(--border, #e5e7eb); color: var(--text, #1e293b); }
+.table tbody tr:hover { background: rgba(234, 88, 12, 0.06); }
+.status-badge { border-radius: 20px; padding: 6px 12px; font-size: 0.85rem; font-weight: 600; }
+.status-pending { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+.status-confirmed { background: rgba(30, 41, 59, 0.1); color: var(--ink, #1e293b); }
+.status-completed { background: rgba(46, 204, 113, 0.15); color: var(--success, #22c55e); }
+.estimated-item { background: var(--cream-warm, #fef3c7); border-left: 4px solid var(--gold, #EA580C); padding: 1rem; border-radius: 8px; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; }
+.estimated-qty { background: var(--gold, #EA580C); color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+.form-section { background: var(--surface, #fff); border-radius: 1rem; padding: 2rem; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06); border: 1px solid var(--border, #e5e7eb); }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 768px) {
+    .dashboard-sidebar { width: 100%; height: auto; position: static; padding: 1rem 0; display: flex; overflow-x: auto; border-bottom: 1px solid #e5e7eb; }
+    .sidebar-item { margin-bottom: 0; padding: 10px 1rem; white-space: nowrap; border-left: none; border-bottom: 3px solid transparent; }
+    .sidebar-item.active { border-left: none; border-bottom-color: var(--gold, #EA580C); background: transparent; }
+    .main-content { margin-left: 0; padding: 1.5rem; }
+}
+</style>
+{% endblock %}
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-sidebar">
+        <a href="#overview" class="sidebar-item active" data-section="overview"><i class="bi bi-speedometer2"></i><span>Overview</span></a>
+        <a href="#orders" class="sidebar-item" data-section="orders"><i class="bi bi-box-seam"></i><span>Orders</span></a>
+        <a href="#reviews" class="sidebar-item" data-section="reviews"><i class="bi bi-star"></i><span>Reviews</span></a>
+        <a href="#earnings" class="sidebar-item" data-section="earnings"><i class="bi bi-wallet2"></i><span>Earnings</span></a>
+        <a href="#estimated" class="sidebar-item" data-section="estimated"><i class="bi bi-calendar-check"></i><span>Estimated Items</span></a>
+        <a href="#post-food" class="sidebar-item" data-section="post-food"><i class="bi bi-plus-circle"></i><span>Post Food Item</span></a>
+    </div>
+    <div class="main-content">
+        <section id="overview" class="content-section">
+            <h2 class="section-title">Dashboard Overview</h2>
+            <div class="row g-4 mb-4">
+                <div class="col-md-6 col-lg-3">
+                    <div class="stat-card">
+                        <div class="d-flex align-items-center">
+                            <div class="stat-icon orders"><i class="bi bi-box-seam"></i></div>
+                            <div>
+                                <div class="stat-value">24</div>
+                                <div class="stat-label">Pending Orders</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="stat-card">
+                        <div class="d-flex align-items-center">
+                            <div class="stat-icon earnings"><i class="bi bi-wallet2"></i></div>
+                            <div>
+                                <div class="stat-value">₹4,850</div>
+                                <div class="stat-label">This Month</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="stat-card">
+                        <div class="d-flex align-items-center">
+                            <div class="stat-icon reviews"><i class="bi bi-star-fill"></i></div>
+                            <div>
+                                <div class="stat-value">4.8</div>
+                                <div class="stat-label">Chef Rating</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="stat-card">
+                        <div class="d-flex align-items-center">
+                            <div class="stat-icon orders"><i class="bi bi-check-circle"></i></div>
+                            <div>
+                                <div class="stat-value">127</div>
+                                <div class="stat-label">Completed Orders</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="orders" class="content-section d-none">
+            <h2 class="section-title">Recent Orders</h2>
+            <div class="table-container">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Food Item</th>
+                            <th>Customer</th>
+                            <th>Quantity</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>#ORD-2025-001</td>
+                            <td>Homemade Thali</td>
+                            <td>Rajesh Kumar</td>
+                            <td>2</td>
+                            <td>₹360</td>
+                            <td><span class="status-badge status-pending">Pending</span></td>
+                            <td><button class="btn btn-primary btn-sm">Accept</button> <button class="btn btn-secondary btn-sm">Reject</button></td>
+                        </tr>
+                        <tr>
+                            <td>#ORD-2025-002</td>
+                            <td>Steamed Momo Platter</td>
+                            <td>Priya Sharma</td>
+                            <td>1</td>
+                            <td>₹150</td>
+                            <td><span class="status-badge status-confirmed">Confirmed</span></td>
+                            <td><button class="btn btn-primary btn-sm">Complete</button> <button class="btn btn-secondary btn-sm">Cancel</button></td>
+                        </tr>
+                        <tr>
+                            <td>#ORD-2025-003</td>
+                            <td>Veg Biryani</td>
+                            <td>Arjun Singh</td>
+                            <td>3</td>
+                            <td>₹600</td>
+                            <td><span class="status-badge status-confirmed">Confirmed</span></td>
+                            <td><button class="btn btn-primary btn-sm">Complete</button> <button class="btn btn-secondary btn-sm">Cancel</button></td>
+                        </tr>
+                        <tr>
+                            <td>#ORD-2025-004</td>
+                            <td>Comfort Veg Soup</td>
+                            <td>Deepak Patel</td>
+                            <td>4</td>
+                            <td>₹480</td>
+                            <td><span class="status-badge status-completed">Completed</span></td>
+                            <td><button class="btn btn-secondary btn-sm">View</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="reviews" class="content-section d-none">
+            <h2 class="section-title">Customer Reviews</h2>
+            <div class="table-container">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Customer</th>
+                            <th>Food Item</th>
+                            <th>Rating</th>
+                            <th>Review</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Rajesh Kumar</td>
+                            <td>Homemade Thali</td>
+                            <td><span class="text-warning"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></span> 5.0</td>
+                            <td>Excellent taste! Just like homemade food. Highly recommended!</td>
+                            <td>2025-02-10</td>
+                            <td><button class="btn btn-primary btn-sm">Reply</button></td>
+                        </tr>
+                        <tr>
+                            <td>Priya Sharma</td>
+                            <td>Steamed Momo Platter</td>
+                            <td><span class="text-warning"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i></span> 4.5</td>
+                            <td>Very fresh and delicious. Will order again!</td>
+                            <td>2025-02-09</td>
+                            <td><button class="btn btn-primary btn-sm">Reply</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="earnings" class="content-section d-none">
+            <h2 class="section-title">Earnings Summary</h2>
+            <div class="row g-4 mb-4">
+                <div class="col-lg-8">
+                    <div class="table-container">
+                        <h5 class="mb-3">Earnings Breakdown</h5>
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Orders</th>
+                                    <th>Amount Earned</th>
+                                    <th>Commission (15%)</th>
+                                    <th>Net Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>2025-02-12</td><td>5</td><td>₹850</td><td>₹127.50</td><td>₹722.50</td></tr>
+                                <tr><td>2025-02-11</td><td>4</td><td>₹750</td><td>₹112.50</td><td>₹637.50</td></tr>
+                                <tr><td>2025-02-10</td><td>6</td><td>₹1,200</td><td>₹180</td><td>₹1,020</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="stat-card">
+                        <div class="stat-value text-success">₹4,850</div>
+                        <div class="stat-label">This Month (Gross)</div>
+                    </div>
+                    <div class="stat-card mt-3">
+                        <div class="stat-value" style="color: #3b82f6;">₹4,122.50</div>
+                        <div class="stat-label">Net Income</div>
+                    </div>
+                    <p class="text-muted small mt-4"><i class="bi bi-info-circle"></i> Commission is charged at 15% per order.</p>
+                    <button class="btn btn-primary w-100 mt-3">Request Withdrawal</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="estimated" class="content-section d-none">
+            <h2 class="section-title">Estimated Food for Tomorrow</h2>
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="table-container">
+                        <div class="estimated-item">
+                            <div><h6 class="mb-1">Homemade Thali</h6><small class="text-muted">High demand item</small></div>
+                            <div class="d-flex align-items-center gap-3"><div class="estimated-qty">18</div><span class="text-muted">portions</span></div>
+                        </div>
+                        <div class="estimated-item">
+                            <div><h6 class="mb-1">Steamed Momo Platter</h6><small class="text-muted">Confirmed orders</small></div>
+                            <div class="d-flex align-items-center gap-3"><div class="estimated-qty">12</div><span class="text-muted">portions</span></div>
+                        </div>
+                        <div class="estimated-item">
+                            <div><h6 class="mb-1">Veg Biryani</h6><small class="text-muted">Popular request</small></div>
+                            <div class="d-flex align-items-center gap-3"><div class="estimated-qty">10</div><span class="text-muted">portions</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="stat-card">
+                        <h6 class="mb-3">Tomorrow's Plan</h6>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-2"><span>Total Items</span><strong>73 portions</strong></div>
+                            <div class="d-flex justify-content-between mb-2"><span>Estimated Time</span><strong>4-5 hours</strong></div>
+                            <div class="d-flex justify-content-between mb-2"><span>Expected Revenue</span><strong class="text-success">₹1,450</strong></div>
+                        </div>
+                        <hr>
+                        <button class="btn btn-primary w-100 mb-2">Download Plan</button>
+                        <button class="btn btn-secondary w-100">Edit Estimates</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="post-food" class="content-section d-none">
+            <h2 class="section-title">Post New Food Item</h2>
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="form-section">
+                        <form>
+                            <div class="mb-4">
+                                <label class="form-label">Food Item Name</label>
+                                <input type="text" class="form-control" placeholder="e.g., Butter Chicken Thali">
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <label class="form-label">Category</label>
+                                    <select class="form-select">
+                                        <option selected>Select category</option>
+                                        <option>Curries</option>
+                                        <option>Breads</option>
+                                        <option>Soups</option>
+                                        <option>Desserts</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <label class="form-label">Price (₹)</label>
+                                    <input type="number" class="form-control" placeholder="250" min="0">
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label">Description</label>
+                                <textarea class="form-control" rows="4" placeholder="Describe your food item, ingredients, and preparation details..."></textarea>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <label class="form-label">Servings Available</label>
+                                    <input type="number" class="form-control" placeholder="10" min="1">
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <label class="form-label">Availability</label>
+                                    <select class="form-select">
+                                        <option selected>Daily</option>
+                                        <option>Weekdays Only</option>
+                                        <option>Weekends Only</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label">Food Image</label>
+                                <div class="input-group">
+                                    <input type="file" class="form-control" accept="image/*">
+                                    <button class="btn btn-secondary" type="button">Upload</button>
+                                </div>
+                                <small class="text-muted d-block mt-2">Supported: JPG, PNG, GIF (Max 5MB)</small>
+                            </div>
+                            <div class="mb-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="vegan" checked>
+                                    <label class="form-check-label" for="vegan">Vegetarian/Vegan</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="spicy">
+                                    <label class="form-check-label" for="spicy">Spicy</label>
+                                </div>
+                            </div>
+                            <div class="d-grid gap-2 d-sm-flex">
+                                <button type="submit" class="btn btn-primary">Post Food Item</button>
+                                <button type="reset" class="btn btn-secondary">Clear Form</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="stat-card">
+                        <h6 class="mb-3">Posting Tips</h6>
+                        <ul class="small text-muted">
+                            <li class="mb-2"><strong>Use clear photos:</strong> Good images get more orders</li>
+                            <li class="mb-2"><strong>Be descriptive:</strong> Mention ingredients and preparation</li>
+                            <li class="mb-2"><strong>Set realistic prices:</strong> Check similar items</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function showSection(sectionId) {
+        document.querySelectorAll('.content-section').forEach(function(s) { s.classList.add('d-none'); });
+        var el = document.getElementById(sectionId);
+        if (el) el.classList.remove('d-none');
+        document.querySelectorAll('.sidebar-item').forEach(function(item) {
+            item.classList.toggle('active', item.getAttribute('data-section') === sectionId);
+        });
+    }
+    document.querySelectorAll('.sidebar-item').forEach(function(item) {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            showSection(this.getAttribute('data-section'));
+        });
+    });
+    showSection('overview');
+});
+</script>
+{% endblock %}

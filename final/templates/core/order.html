@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Place Your Order - Ghar Ko Swad{% endblock %}
+{% block content %}
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body p-4">
+                        <h1 class="h3 fw-bold mb-3 text-center">Place Your Order</h1>
+                        <p class="text-muted small mb-4 text-center">Fill the details below and we will confirm your homemade meal order.</p>
+                        <form method="post" action="{% url 'core:order' %}" id="orderForm">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label class="form-label">Full Name</label>
+                                <input type="text" class="form-control" name="name" id="orderName" placeholder="Your name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control" name="phone" id="orderPhone" placeholder="+91-XXXXXXXXXX" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Delivery Address</label>
+                                <textarea class="form-control" name="address" id="orderAddress" rows="1" placeholder="House no, street, landmark, city" required></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Select Dish</label>
+                                <select class="form-select" name="dish" id="orderDish">
+                                    <option value="thali" selected>Homemade Thali</option>
+                                    <option value="momo">Steamed Momo Platter</option>
+                                    <option value="biryani">Veg Biryani</option>
+                                    <option value="soup">Comfort Veg Soup</option>
+                                </select>
+                            </div>
+                            <div class="row g-3 mb-3">
+                                <div class="col-6">
+                                    <label class="form-label">Rate (per plate)</label>
+                                    <input type="text" class="form-control" id="orderRate" value="₹180" readonly>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Quantity</label>
+                                    <input type="number" class="form-control" name="quantity" id="orderQty" min="1" value="1">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Total Amount</label>
+                                <input type="text" class="form-control" id="orderTotal" value="₹180" readonly>
+                                <input type="hidden" name="total" id="orderTotalHidden" value="₹180">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Preferred Delivery Time</label>
+                                <input type="time" class="form-control" name="delivery_time" id="orderTime">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Additional Notes (optional)</label>
+                                <textarea class="form-control" name="notes" id="orderNotes" rows="1" placeholder="Spice level, allergies, etc."></textarea>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">Confirm Order</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+{% block extra_js %}
+<script>
+(function() {
+    var prices = { thali: 180, momo: 150, biryani: 200, soup: 120 };
+    var dishEl = document.getElementById('orderDish');
+    var qtyEl = document.getElementById('orderQty');
+    var rateEl = document.getElementById('orderRate');
+    var totalEl = document.getElementById('orderTotal');
+    var totalHidden = document.getElementById('orderTotalHidden');
+    function update() {
+        var key = dishEl.value;
+        var qty = Math.max(1, parseInt(qtyEl.value, 10) || 1);
+        var price = prices[key] || 0;
+        var total = price * qty;
+        qtyEl.value = qty;
+        rateEl.value = '₹' + price;
+        totalEl.value = '₹' + total;
+        totalHidden.value = '₹' + total;
+    }
+    dishEl.addEventListener('change', update);
+    qtyEl.addEventListener('input', update);
+    update();
+})();
+</script>
+{% endblock %}

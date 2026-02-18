@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Food Details - Ghar Ko Swad</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="premium.css">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="index.html">
+                Ghar Ko Swad
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="chef-profile.html">Chefs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="contact.html">Contact Us</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="customer-dashboard.html">My Orders</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="login.html">Login</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Food Details Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-sm">
+                        <img src="https://images.pexels.com/photos/2233729/pexels-photo-2233729.jpeg?auto=compress&cs=tinysrgb&w=1200"
+                             class="card-img-top" alt="Homemade Thali">
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <h1 class="h3 fw-bold mb-2">Homemade Thali</h1>
+                    <div class="mb-2">
+                        <div class="d-flex align-items-center">
+                            <div id="ratingStars" class="text-warning me-2">
+                                <i class="bi bi-star" data-value="1"></i>
+                                <i class="bi bi-star" data-value="2"></i>
+                                <i class="bi bi-star" data-value="3"></i>
+                                <i class="bi bi-star" data-value="4"></i>
+                                <i class="bi bi-star" data-value="5"></i>
+                            </div>
+                            <small class="text-muted">
+                                <span id="averageRating">4.5</span> (
+                                <span id="reviewCount">120</span> reviews)
+                            </small>
+                        </div>
+                        <small class="text-muted">Click the stars to rate this dish.</small>
+                    </div>
+                    <p class="h4 text-success fw-semibold mb-3">₹180</p>
+
+                    <p class="text-muted">
+                        A wholesome homemade thali with fresh seasonal vegetables, dal, rice, roti, salad and a small sweet.
+                        Prepared with less oil and homely spices, perfect for your everyday comfort meal.
+                    </p>
+
+                    <div class="mb-3">
+                        <h2 class="h6 fw-bold mb-2">Prepared by</h2>
+                        <div class="d-flex align-items-center">
+                            <div class="rounded-circle bg-warning d-flex align-items-center justify-content-center me-2"
+                                 style="width: 40px; height: 40px;">
+                                <span class="fw-bold text-white">A</span>
+                            </div>
+                            <div>
+                                <div class="fw-semibold">Chef Anjali</div>
+                                <small class="text-muted">Homemaker | 5+ years home cooking experience</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <h2 class="h6 fw-bold mb-2">What’s included</h2>
+                        <ul class="text-muted small mb-0">
+                            <li>2 sabzi (seasonal vegetables)</li>
+                            <li>Dal (lentils)</li>
+                            <li>Steamed rice & 3 rotis</li>
+                            <li>Salad & pickle</li>
+                            <li>Small sweet / dessert</li>
+                        </ul>
+                    </div>
+
+                    <div class="mb-4">
+                        <h2 class="h6 fw-bold mb-2">Delivery info</h2>
+                        <p class="text-muted small mb-0">
+                            Available for lunch and dinner within your local area.
+                            Average preparation & delivery time: 45–60 minutes.
+                        </p>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div>
+                            <label class="form-label small mb-1">Quantity</label>
+                            <input type="number" class="form-control" style="width: 90px;" min="1" value="1">
+                        </div>
+                        <div class="flex-grow-1">
+                            <label class="form-label small mb-1">Preferred time</label>
+                            <input type="time" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="order.html" class="btn btn-primary">
+                            Order Now
+                        </a>
+                        <a href="index.html#recommended" class="btn btn-outline-secondary">
+                            Back to all dishes
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Reviews Section -->
+    <section class="pb-5">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <h2 class="h5 fw-bold mb-3">Customer Reviews</h2>
+                    <div id="reviewsList" class="list-group small">
+                        <!-- Reviews will be injected here -->
+                    </div>
+                    <p id="noReviewsText" class="text-muted small mb-0">No reviews yet. Be the first to review!</p>
+                </div>
+                <div class="col-lg-6">
+                    <h2 class="h5 fw-bold mb-3">Write a Review</h2>
+                    <form id="reviewForm" class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label small">Your name</label>
+                                <input type="text" class="form-control" id="reviewerName" placeholder="Optional">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small">Your rating</label>
+                                <div id="formRatingStars" class="text-warning fs-5">
+                                    <i class="bi bi-star" data-value="1"></i>
+                                    <i class="bi bi-star" data-value="2"></i>
+                                    <i class="bi bi-star" data-value="3"></i>
+                                    <i class="bi bi-star" data-value="4"></i>
+                                    <i class="bi bi-star" data-value="5"></i>
+                                </div>
+                                <input type="hidden" id="selectedRating" value="0">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small">Your review</label>
+                                <textarea class="form-control" id="reviewText" rows="3" placeholder="Share your experience"></textarea>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-sm">Submit Review</button>
+                            </div>
+                            <small id="reviewMessage" class="text-success small d-block mt-2" style="display:none;">
+                                Thank you! Your review has been added.
+                            </small>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-4 mt-auto">
+        <div class="container">
+            <div class="row gy-3 align-items-center">
+                <div class="col-md-6">
+                    <small class="text-muted">
+                        © <span id="year"></span> Ghar Ko Swad. All rights reserved.
+                    </small>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <small class="d-block">Contact: support@gharkoswad.com | +91-9876543210</small>
+                    <div class="mt-1">
+                        <a href="#" class="text-muted me-3"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="text-muted me-3"><i class="bi bi-instagram"></i></a>
+                        <a href="#" class="text-muted"><i class="bi bi-twitter-x"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Simple rating + review system using localStorage (only in this browser)
+        const STORAGE_KEY = 'gharKoSwad_reviews_homemadeThali';
+
+        function getStoredReviews() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                return raw ? JSON.parse(raw) : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveReviews(reviews) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(reviews));
+        }
+
+        function renderReviews() {
+            const reviews = getStoredReviews();
+            const list = document.getElementById('reviewsList');
+            const noReviewsText = document.getElementById('noReviewsText');
+            list.innerHTML = '';
+
+            if (!reviews.length) {
+                noReviewsText.style.display = 'block';
+            } else {
+                noReviewsText.style.display = 'none';
+                reviews.forEach(r => {
+                    const item = document.createElement('div');
+                    item.className = 'list-group-item border-0 border-bottom';
+                    item.innerHTML = `
+                        <div class="d-flex justify-content-between">
+                            <strong>${r.name || 'Anonymous'}</strong>
+                            <span class="text-warning">
+                                ${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}
+                            </span>
+                        </div>
+                        <p class="mb-1">${r.text}</p>
+                        <small class="text-muted">${new Date(r.date).toLocaleString()}</small>
+                    `;
+                    list.prepend(item);
+                });
+            }
+
+            // update average rating
+            const avgEl = document.getElementById('averageRating');
+            const countEl = document.getElementById('reviewCount');
+            if (reviews.length) {
+                const avg = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+                avgEl.textContent = avg.toFixed(1);
+                countEl.textContent = reviews.length;
+            }
+        }
+
+        function setupStarInteraction(containerId, hiddenInputId) {
+            const container = document.getElementById(containerId);
+            const stars = container.querySelectorAll('i[data-value]');
+            const hidden = hiddenInputId ? document.getElementById(hiddenInputId) : null;
+
+            stars.forEach(star => {
+                star.style.cursor = 'pointer';
+                star.addEventListener('mouseenter', () => {
+                    const val = parseInt(star.dataset.value, 10);
+                    stars.forEach(s => {
+                        const sVal = parseInt(s.dataset.value, 10);
+                        s.className = 'bi ' + (sVal <= val ? 'bi-star-fill' : 'bi-star');
+                    });
+                });
+
+                star.addEventListener('click', () => {
+                    const val = parseInt(star.dataset.value, 10);
+                    if (hidden) hidden.value = val;
+                });
+            });
+
+            container.addEventListener('mouseleave', () => {
+                const current = hidden ? parseInt(hidden.value || '0', 10) : 0;
+                stars.forEach(s => {
+                    const sVal = parseInt(s.dataset.value, 10);
+                    s.className = 'bi ' + (sVal <= current ? 'bi-star-fill' : 'bi-star');
+                });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Main rating display – clicking also updates hidden rating
+            setupStarInteraction('ratingStars', 'selectedRating');
+
+            // Form rating stars
+            setupStarInteraction('formRatingStars', 'selectedRating');
+
+            // Render existing reviews
+            renderReviews();
+
+            // Handle review form submit
+            const form = document.getElementById('reviewForm');
+            const msg = document.getElementById('reviewMessage');
+            form.addEventListener('submit', e => {
+                e.preventDefault();
+                const name = document.getElementById('reviewerName').value.trim();
+                const text = document.getElementById('reviewText').value.trim();
+                const rating = parseInt(document.getElementById('selectedRating').value || '0', 10);
+
+                if (!rating || !text) {
+                    alert('Please select a rating and write a review.');
+                    return;
+                }
+
+                const reviews = getStoredReviews();
+                reviews.push({
+                    name,
+                    text,
+                    rating,
+                    date: new Date().toISOString()
+                });
+                saveReviews(reviews);
+                renderReviews();
+
+                form.reset();
+                document.getElementById('selectedRating').value = '0';
+                msg.style.display = 'block';
+                setTimeout(() => msg.style.display = 'none', 2500);
+            });
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ghar Ko Swad - Taste Homemade Happiness</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Google Fonts - premium typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,500&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="premium.css">
+    <style>
+        :root {
+            --ink: #292524;
+            --ink-light: #44403C;
+            --gold: #EA580C;
+            --gold-light: #FB923C;
+            --gold-dark: #C2410C;
+            --cream: #FAFAF9;
+            --cream-warm: #F5F3F0;
+            --surface: #FFFFFF;
+            --text: #1C1917;
+            --text-muted: #57534E;
+            --border: #E7E5E4;
+        }
+
+        /* ================= NAVBAR ================= */
+        .navbar {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 1rem 0;
+            background: #FFFFFF;
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(41, 37, 36, 0.06);
+            position: relative;
+        }
+
+        .navbar::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-light), transparent);
+            opacity: 0.4;
+        }
+
+        .navbar.scrolled {
+            box-shadow: 0 2px 8px rgba(41, 37, 36, 0.06);
+            padding: 0.6rem 0;
+        }
+
+        .navbar-brand {
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            background: linear-gradient(135deg, var(--gold-light), var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            transition: all 0.3s ease;
+            padding: 8px 16px;
+            border-radius: 8px;
+        }
+
+        .navbar-brand:hover {
+            transform: scale(1.02);
+            filter: drop-shadow(0 2px 8px rgba(234, 88, 12, 0.25));
+        }
+
+        .navbar-brand::after {
+            content: '🍳';
+            margin-left: 8px;
+            font-size: 1.4rem;
+            animation: spin 3s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .navbar-nav .nav-link {
+            position: relative;
+            font-weight: 600;
+            margin: 0 8px;
+            padding: 8px 0 !important;
+            color: var(--text) !important;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.1em;
+        }
+
+        .navbar-nav .nav-link::before {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gold);
+            transition: width 0.3s ease;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: var(--gold) !important;
+        }
+
+        .navbar-nav .nav-link:hover::before {
+            width: 100%;
+        }
+
+        .navbar-nav .nav-link.active {
+            color: var(--gold) !important;
+            font-weight: 700;
+        }
+
+        .navbar-nav .nav-link.active::before {
+            width: 100%;
+        }
+
+        .navbar-nav .nav-link[href="login.html"],
+        .navbar-nav .nav-link[href="chef-dashboard.html"] {
+            background: transparent;
+            color: var(--gold-dark) !important;
+            padding: 8px 20px !important;
+            border-radius: 6px;
+            margin-left: 12px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            border: 2px solid var(--gold);
+            transition: all 0.3s ease;
+        }
+
+        .navbar-nav .nav-link[href="login.html"]:hover,
+        .navbar-nav .nav-link[href="chef-dashboard.html"]:hover {
+            background: var(--gold);
+            color: #FFFFFF !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(234, 88, 12, 0.25);
+        }
+
+        .navbar-nav .nav-link[href="login.html"]::before,
+        .navbar-nav .nav-link[href="chef-dashboard.html"]::before {
+            display: none;
+        }
+
+        /* ================= FOOTER ================= */
+        footer {
+            background: #F7F5F3;
+            border-top: 1px solid var(--border);
+            position: relative;
+            box-shadow: 0 -1px 3px rgba(41, 37, 36, 0.06);
+        }
+
+        footer::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-light), transparent);
+            opacity: 0.4;
+        }
+
+        footer small {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        footer a {
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            color: var(--text);
+        }
+
+        footer a:hover {
+            color: var(--gold-dark) !important;
+            transform: translateY(-2px) scale(1.1);
+        }
+
+        /* ================= BODY ================= */
+        body {
+            background: var(--cream);
+            color: var(--text);
+            font-weight: 500;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .navbar-brand, .hero-title, .section-title, .home-contact h2, .home-contact h3 {
+            font-family: 'Cormorant Garamond', serif;
+        }
+
+        .text-brand {
+            color: var(--gold-dark);
+        }
+
+        .text-muted {
+            color: var(--text-muted) !important;
+        }
+
+        /* ================= HERO (Explore Food) ================= */
+        .hero-section {
+            background: linear-gradient(135deg, rgba(41, 37, 36, 0.35), rgba(41, 37, 36, 0.25)), url('https://images.pexels.com/photos/958545/pexels-photo-958545.jpeg?auto=compress&cs=tinysrgb&w=2400') center/cover no-repeat;
+            animation: heroPan 20s linear infinite alternate;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse 80% 50% at 50% 50%, rgba(234, 88, 12, 0.06), transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-section .hero-title,
+        .hero-section h1.hero-title {
+            animation: fadeDown 0.7s ease-out both;
+            font-weight: 800;
+            color: #FFFFFF !important;
+            letter-spacing: -0.02em;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8), 0 4px 12px rgba(0, 0, 0, 0.6), 0 0 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero-section .hero-subtitle,
+        .hero-section p.lead,
+        .hero-section .lead {
+            animation: fadeDown 0.9s ease-out both;
+            color: #FFFFFF !important;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8), 0 2px 10px rgba(0, 0, 0, 0.6);
+        }
+
+        .hero-section .hero-cta {
+            animation: fadeUp 1s ease-out both;
+            background: var(--gold);
+            color: #FFFFFF !important;
+            border: 1px solid var(--gold);
+            font-weight: 600;
+            padding: 14px 40px;
+            font-size: 0.9rem;
+            letter-spacing: 0.06em;
+            border-radius: 8px;
+            text-transform: uppercase;
+            transition: all 0.25s ease;
+            text-shadow: none;
+        }
+
+        .hero-section .hero-cta:hover {
+            background: var(--gold-dark);
+            color: #FFFFFF !important;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(234, 88, 12, 0.25);
+        }
+
+        /* ================= CARDS ================= */
+        .card-img-top {
+            height: 160px;
+            object-fit: cover;
+            width: 100%;
+            transition: transform 0.4s ease, filter 0.4s ease;
+        }
+
+        .card:hover .card-img-top {
+            transform: scale(1.05);
+            filter: brightness(1.02);
+        }
+
+        .card {
+            border-radius: 12px;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            animation: fadeUp 0.7s ease-out both;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(41, 37, 36, 0.1);
+            border-color: rgba(234, 88, 12, 0.2);
+        }
+
+        @keyframes imageFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(234, 88, 12, 0.04), transparent);
+            transition: left 0.5s ease;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .card:hover::before {
+            left: 100%;
+        }
+
+        .card-title {
+            color: var(--text);
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+
+        .card-body {
+            position: relative;
+            z-index: 2;
+        }
+
+        .card .btn {
+            border-radius: 8px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--gold);
+            border: 1px solid var(--gold);
+            color: #FFFFFF;
+            box-shadow: 0 1px 3px rgba(41, 37, 36, 0.06);
+        }
+
+        .btn-primary:hover {
+            background: var(--gold-dark);
+            border-color: var(--gold-dark);
+            color: #FFFFFF;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(234, 88, 12, 0.25);
+        }
+
+        .btn-outline-primary {
+            color: var(--ink);
+            border: 1px solid var(--border);
+            background: transparent;
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--gold);
+            border-color: var(--gold);
+            color: #FFFFFF;
+        }
+
+        /* ================= SECTIONS ================= */
+        #recommended {
+            background: var(--cream-warm);
+            position: relative;
+        }
+
+        #recommended::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-light), transparent);
+            opacity: 0.5;
+        }
+
+        .section-title {
+            color: var(--text);
+            font-weight: 800;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.03em;
+        }
+
+        #recommended .h3 {
+            color: var(--text);
+        }
+
+        #recommended .text-success {
+            color: #0F766E !important;
+            font-weight: 700;
+        }
+
+        #recommended .text-warning {
+            color: var(--gold-dark) !important;
+        }
+
+        #recommended small.text-muted {
+            color: var(--text-muted) !important;
+        }
+
+        /* ================= CONTACT ================= */
+        .home-contact {
+            background: var(--surface);
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(41, 37, 36, 0.06);
+            padding: 3rem;
+            animation: fadeUp 0.9s ease-out both;
+            border: 1px solid var(--border);
+        }
+
+        .home-contact h2 {
+            color: var(--text);
+            font-weight: 800;
+            font-size: 1.75rem;
+            letter-spacing: -0.02em;
+        }
+
+        .home-contact h3 {
+            color: var(--text);
+            font-weight: 700;
+        }
+
+        .home-contact .text-muted {
+            color: var(--text-muted) !important;
+        }
+
+        .home-contact .text-primary {
+            color: var(--gold) !important;
+        }
+
+        .form-control {
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            transition: all 0.2s ease;
+            padding: 6px 10px;
+            font-size: 0.875rem;
+            min-height: 32px;
+            color: var(--text);
+        }
+
+        .form-control:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 2px rgba(234, 88, 12, 0.12);
+            color: var(--text);
+        }
+
+        .form-label {
+            color: var(--text);
+            font-weight: 600;
+            margin-bottom: 4px;
+            font-size: 0.8125rem;
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            font-family: inherit;
+            min-height: 32px;
+            line-height: 1.4;
+        }
+
+        /* ================= ANIMATIONS ================= */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeDown {
+            from {
+                opacity: 0;
+                transform: translateY(-14px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes heroPan {
+            from {
+                background-position: 0% center;
+            }
+            to {
+                background-position: 100% center;
+            }
+        }
+
+        /* ================= RESPONSIVE ================= */
+        @media (max-width: 768px) {
+            .navbar-brand {
+                font-size: 1.3rem;
+            }
+
+            .navbar-nav .nav-link {
+                margin: 0 4px;
+                font-size: 0.8rem;
+            }
+
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .home-contact {
+                padding: 1.5rem;
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="index.html">
+                Ghar Ko Swad
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="chef-profile.html">Chefs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="contact.html">Contact Us</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="customer-dashboard.html">My Orders</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="login.html">Login</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="py-5 hero-section">
+        <div class="container">
+            <div class="row justify-content-center text-center">
+                <div class="col-lg-8">
+                    <h1 class="display-4 fw-bold mb-3 hero-title">Taste Homemade Happiness</h1>
+                    <p class="lead mb-4 hero-subtitle">
+                        Fresh, homely meals crafted by local chefs – just like home.
+                    </p>
+                    <a href="#recommended" class="btn btn-warning btn-lg fw-semibold px-4 hero-cta">
+                        Explore Food
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recommended Section -->
+    <section id="recommended" class="py-5">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="h3 fw-bold mb-0">Recommended For You</h2>
+                <small class="text-muted">Curated just for your taste</small>
+            </div>
+
+            <div class="row g-4">
+                <!-- Food Card 1 -->
+                <div class="col-sm-6 col-md-4 col-lg-3">
+                    <div class="card h-100 shadow-sm border-0">
+                        <img src="https://images.pexels.com/photos/2233729/pexels-photo-2233729.jpeg?auto=compress&cs=tinysrgb&w=800"
+                             class="card-img-top" alt="Homemade Thali">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title mb-1">Homemade Thali</h5>
+                            <p class="mb-1 text-success fw-semibold">₹180</p>
+                            <a href="chef-profile.html" class="text-decoration-none small mb-2">
+                                By <span class="fw-semibold">Chef Anjali</span>
+                            </a>
+                            <div class="mb-2">
+                                <span class="text-warning">
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star-half"></i>
+                                </span>
+                                <small class="text-muted ms-1">4.5 (120 reviews)</small>
+                            </div>
+                            <div class="mt-auto d-grid gap-2">
+                                <a href="food-details.html" class="btn btn-outline-primary btn-sm">
+                                    View Details
+                                </a>
+                                <a href="order.html" class="btn btn-primary btn-sm">
+                                    Order Now
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Food Card 2 -->
+                <div class="col-sm-6 col-md-4 col-lg-3">
+                    <div class="card h-100 shadow-sm border-0">
+                        <img src="https://images.pexels.com/photos/4106483/pexels-photo-4106483.jpeg?auto=compress&cs=tinysrgb&w=800"
+                             class="card-img-top" alt="Momo Platter">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title mb-1">Steamed Momo Platter</h5>
+                            <p class="mb-1 text-success fw-semibold">₹150</p>
+                            <a href="chef-profile.html" class="text-decoration-none small mb-2">
+                                By <span class="fw-semibold">Chef Sushant</span>
+                            </a>
+                            <div class="mb-2">
+                                <span class="text-warning">
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star"></i>
+                                </span>
+                                <small class="text-muted ms-1">4.0 (85 reviews)</small>
+                            </div>
+                            <div class="mt-auto d-grid gap-2">
+                                <a href="food-details.html" class="btn btn-outline-primary btn-sm">
+                                    View Details
+                                </a>
+                                <a href="order.html" class="btn btn-primary btn-sm">
+                                    Order Now
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Food Card 3 -->
+                <div class="col-sm-6 col-md-4 col-lg-3">
+                    <div class="card h-100 shadow-sm border-0">
+                        <img src="https://images.pexels.com/photos/958545/pexels-photo-958545.jpeg?auto=compress&cs=tinysrgb&w=800"
+                             class="card-img-top" alt="Veg Biryani">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title mb-1">Veg Biryani</h5>
+                            <p class="mb-1 text-success fw-semibold">₹200</p>
+                            <a href="chef-profile.html" class="text-decoration-none small mb-2">
+                                By <span class="fw-semibold">Chef Ramesh</span>
+                            </a>
+                            <div class="mb-2">
+                                <span class="text-warning">
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star-half"></i>
+                                    <i class="bi bi-star"></i>
+                                </span>
+                                <small class="text-muted ms-1">3.8 (60 reviews)</small>
+                            </div>
+                            <div class="mt-auto d-grid gap-2">
+                                <a href="food-details.html" class="btn btn-outline-primary btn-sm">
+                                    View Details
+                                </a>
+                                <a href="order.html" class="btn btn-primary btn-sm">
+                                    Order Now
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Food Card 4 -->
+                <div class="col-sm-6 col-md-4 col-lg-3">
+                    <div class="card h-100 shadow-sm border-0">
+                        <img src="https://images.pexels.com/photos/699953/pexels-photo-699953.jpeg?auto=compress&cs=tinysrgb&w=800"
+                             class="card-img-top" alt="Soup Bowl">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title mb-1">Comfort Veg Soup</h5>
+                            <p class="mb-1 text-success fw-semibold">₹120</p>
+                            <a href="chef-profile.html" class="text-decoration-none small mb-2">
+                                By <span class="fw-semibold">Chef Meera</span>
+                            </a>
+                            <div class="mb-2">
+                                <span class="text-warning">
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star"></i>
+                                    <i class="bi bi-star"></i>
+                                </span>
+                                <small class="text-muted ms-1">3.2 (35 reviews)</small>
+                            </div>
+                            <div class="mt-auto d-grid gap-2">
+                                <a href="food-details.html" class="btn btn-outline-primary btn-sm">
+                                    View Details
+                                </a>
+                                <a href="order.html" class="btn btn-primary btn-sm">
+                                    Order Now
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- You can duplicate more cards as needed -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Us (Home) -->
+    <section class="pb-5">
+        <div class="container">
+            <div class="home-contact">
+                <div class="row g-4 align-items-start">
+                    <div class="col-lg-6">
+                        <h2 class="h4 fw-bold mb-3">Contact Us</h2>
+                        <p class="text-muted mb-4">
+                            Have a question, feedback, or need help with an order? Send us a message and we’ll get back to you soon.
+                        </p>
+
+                        <div class="mb-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bi bi-envelope-fill text-primary me-2"></i>
+                                <span class="small text-muted">support@gharkoswad.com</span>
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bi bi-telephone-fill text-primary me-2"></i>
+                                <span class="small text-muted">+91-9876543210</span>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-geo-alt-fill text-primary me-2"></i>
+                                <span class="small text-muted">Kathmandu, Nepal</span>
+                            </div>
+                        </div>
+
+                        <p class="small text-muted mb-0">
+                            Working hours: Mon–Sat, 9:00 AM – 7:00 PM
+                        </p>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <h3 class="h5 fw-bold mb-3">Send us a message</h3>
+                        <form>
+                            <div class="mb-3">
+                                <label class="form-label small">Your name</label>
+                                <input type="text" class="form-control" placeholder="Your name">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small">Email</label>
+                                <input type="email" class="form-control" placeholder="you@example.com">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small">Phone (optional)</label>
+                                <input type="tel" class="form-control" placeholder="+91-XXXXXXXXXX">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small">Message</label>
+                                <textarea class="form-control" rows="1" placeholder="How can we help you?"></textarea>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">
+                                    Send Message
+                                </button>
+                            </div>
+                            <small class="text-muted small d-block mt-2">
+                                This is a demo form – in a real app, this would send your message to our support team.
+                            </small>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-4 mt-auto">
+        <div class="container">
+            <div class="row gy-3 align-items-center">
+                <div class="col-md-6">
+                    <small class="text-muted">
+                        © <span id="year"></span> Ghar Ko Swad. All rights reserved.
+                    </small>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <small class="d-block">Contact: support@gharkoswad.com | +91-9876543210</small>
+                    <div class="mt-1">
+                        <a href="#" class="text-muted me-3"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="text-muted me-3"><i class="bi bi-instagram"></i></a>
+                        <a href="#" class="text-muted"><i class="bi bi-twitter-x"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+    <!-- navbar  -->
+    <script>
+        window.addEventListener("scroll", function () {
+    const navbar = document.querySelector(".navbar");
+    navbar.classList.toggle("scrolled", window.scrollY > 20);
+});
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Contact Us - Ghar Ko Swad{% endblock %}
+{% block content %}
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <h1 class="h3 fw-bold mb-3">Contact Us</h1>
+                <p class="text-muted mb-4">
+                    Have a question, feedback, or need help with an order? Send us a message and we'll get back to you soon.
+                </p>
+                <div class="mb-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-envelope-fill text-primary me-2"></i>
+                        <span class="small text-muted">support@gharkoswad.com</span>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-telephone-fill text-primary me-2"></i>
+                        <span class="small text-muted">+91-9876543210</span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-geo-alt-fill text-primary me-2"></i>
+                        <span class="small text-muted">Kathmandu, Nepal</span>
+                    </div>
+                </div>
+                <p class="small text-muted mb-0">Working hours: Mon–Sat, 9:00 AM – 7:00 PM</p>
+            </div>
+            <div class="col-lg-6">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body p-4">
+                        <h2 class="h5 fw-bold mb-3">Send us a message</h2>
+                        {% if messages %}
+                            {% for message in messages %}
+                            <div class="alert alert-success">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                        <form method="post" action="{% url 'core:contact' %}">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label class="form-label small">Your name</label>
+                                <input type="text" name="name" class="form-control" placeholder="Your name">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small">Email</label>
+                                <input type="email" name="email" class="form-control" placeholder="you@example.com">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small">Phone (optional)</label>
+                                <input type="tel" name="phone" class="form-control" placeholder="+91-XXXXXXXXXX">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small">Message</label>
+                                <textarea name="message" class="form-control" rows="4" placeholder="How can we help you?"></textarea>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-sm">Send Message</button>
+                            </div>
+                            <small class="text-muted small d-block mt-2">This is a demo form – in a real app, this would send your message to our support team.</small>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

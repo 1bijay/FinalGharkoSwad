@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Order Confirmed - Ghar Ko Swad{% endblock %}
+{% block extra_css %}
+<style>
+.confirmation-icon { width: 80px; height: 80px; border-radius: 50%; background: rgba(59, 130, 246, 0.15); color: #2563EB; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin: 0 auto 1rem; }
+.order-summary-row { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--border); }
+.order-summary-row:last-child { border-bottom: none; }
+</style>
+{% endblock %}
+{% block content %}
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body p-4 p-md-5 text-center">
+                        <div class="confirmation-icon"><i class="bi bi-check-circle-fill"></i></div>
+                        <h1 class="h3 fw-bold mb-2">Order Confirmed!</h1>
+                        <p class="text-muted mb-4">Thank you for ordering. Your homemade meal is being prepared.</p>
+                        <div class="bg-light rounded-3 p-4 text-start mb-4">
+                            <div class="order-summary-row"><span class="text-muted">Name</span><strong>{{ order.name }}</strong></div>
+                            <div class="order-summary-row"><span class="text-muted">Phone</span><strong>{{ order.phone }}</strong></div>
+                            <div class="order-summary-row"><span class="text-muted">Delivery address</span><strong class="text-end" style="max-width: 60%;">{{ order.address }}</strong></div>
+                            <div class="order-summary-row"><span class="text-muted">Dish</span><strong>{{ order.get_dish_display }}</strong></div>
+                            <div class="order-summary-row"><span class="text-muted">Quantity</span><strong>{{ order.quantity }}</strong></div>
+                            <div class="order-summary-row"><span class="text-muted">Delivery time</span><strong>{{ order.delivery_time }}</strong></div>
+                            <div class="order-summary-row pt-2 mt-2"><span>Total amount</span><strong class="text-success">{{ order.total }}</strong></div>
+                            {% if order.notes %}<div class="order-summary-row mt-2"><span class="text-muted">Notes</span><span class="text-end" style="max-width: 60%;">{{ order.notes }}</span></div>{% endif %}
+                        </div>
+                        <p class="small text-muted mb-4">We will contact you on your phone number for any updates. Estimated delivery as per your preferred time.</p>
+                        <div class="d-flex flex-column flex-sm-row gap-2 justify-content-center">
+                            <a href="{% url 'core:index' %}" class="btn btn-primary">Back to Home</a>
+                            <a href="{% url 'core:order' %}" class="btn btn-outline-primary">Place Another Order</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Register - Ghar Ko Swad{% endblock %}
+{% block extra_css %}
+<style>
+body { min-height: 100vh; background: linear-gradient(135deg, rgba(250, 250, 249, 0.9), rgba(245, 243, 240, 0.92)), url('https://images.pexels.com/photos/905163/pexels-photo-905163.jpeg?auto=compress&cs=tinysrgb&w=1600') center/cover no-repeat fixed; }
+.card { border-radius: 16px; animation: fadeUp 0.8s ease-out both; }
+.card-body { padding: 2.5rem !important; }
+@media (max-width: 576px) { .card-body { padding: 1.5rem !important; } }
+</style>
+{% endblock %}
+{% block content %}
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-4 col-md-6">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body p-4">
+                        <h1 class="h3 fw-bold mb-3 text-center">Create an Account</h1>
+                        <p class="text-muted small mb-4 text-center">Join Ghar Ko Swad as a customer or a home chef.</p>
+                        <form method="post" action="{% url 'core:register' %}" id="registerForm">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label class="form-label">I am registering as</label>
+                                <div class="d-flex gap-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="userType" id="typeCustomer" value="customer" checked>
+                                        <label class="form-check-label" for="typeCustomer">Customer</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="userType" id="typeChef" value="chef">
+                                        <label class="form-check-label" for="typeChef">Chef</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row g-2">
+                                <div class="col-6 mb-3">
+                                    <label class="form-label">Full Name</label>
+                                    <input type="text" name="name" class="form-control" placeholder="Your name" required>
+                                </div>
+                                <div class="col-6 mb-3">
+                                    <label class="form-label">Phone</label>
+                                    <input type="tel" name="phone" class="form-control" placeholder="+91-XXXXXXXXXX">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Email</label>
+                                <input type="email" name="email" class="form-control" placeholder="you@example.com" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Address <span class="text-danger">*</span></label>
+                                <textarea name="address" class="form-control" rows="1" placeholder="House no, street, landmark, city" required></textarea>
+                            </div>
+                            <div class="mb-3" id="chefInfo" style="display:none;">
+                                <label class="form-label">Your speciality (for chefs)</label>
+                                <input type="text" name="speciality" class="form-control" placeholder="e.g. North Indian veg, momos, soups">
+                                <small class="text-muted">Tell customers what you are best at cooking.</small>
+                            </div>
+                            <div class="row g-2">
+                                <div class="col-6 mb-3">
+                                    <label class="form-label">Password</label>
+                                    <input type="password" name="password1" class="form-control" placeholder="Create password" required>
+                                </div>
+                                <div class="col-6 mb-3">
+                                    <label class="form-label">Confirm Password</label>
+                                    <input type="password" name="password2" class="form-control" placeholder="Re-enter password" required>
+                                </div>
+                            </div>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" name="terms" id="terms" required>
+                                <label class="form-check-label" for="terms">I agree to the terms & conditions</label>
+                            </div>
+                            <div class="d-grid mb-3">
+                                <button type="submit" class="btn btn-primary">Register</button>
+                            </div>
+                        </form>
+                        <p class="text-center small mb-0">
+                            Already have an account?
+                            <a href="{% url 'core:login' %}" class="text-decoration-none">Login</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var chefRadio = document.getElementById('typeChef');
+    var customerRadio = document.getElementById('typeCustomer');
+    var chefInfo = document.getElementById('chefInfo');
+    function update() { chefInfo.style.display = chefRadio.checked ? 'block' : 'none'; }
+    chefRadio.addEventListener('change', update);
+    customerRadio.addEventListener('change', update);
+    update();
+});
+</script>
+{% endblock %}

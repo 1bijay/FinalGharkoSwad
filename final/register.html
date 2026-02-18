@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register - Ghar Ko Swad</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="premium.css">
+    <style>
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, rgba(250, 250, 249, 0.9), rgba(245, 243, 240, 0.92)), url('https://images.pexels.com/photos/905163/pexels-photo-905163.jpeg?auto=compress&cs=tinysrgb&w=1600') center/cover no-repeat fixed;
+        }
+        .card { border-radius: 16px; animation: fadeUp 0.8s ease-out both; }
+        .card-body { padding: 2.5rem !important; }
+        @media (max-width: 576px) { .card-body { padding: 1.5rem !important; } }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="index.html">Ghar Ko Swad</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="chef-profile.html">Chefs</a></li>
+                    <li class="nav-item"><a class="nav-link" href="contact.html">Contact Us</a></li>
+                    <li class="nav-item"><a class="nav-link" href="customer-dashboard.html">My Orders</a></li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="register.html">Register</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Register Form -->
+    <section class="py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-4 col-md-6">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body p-4">
+                            <h1 class="h3 fw-bold mb-3 text-center">Create an Account</h1>
+                            <p class="text-muted small mb-4 text-center">
+                                Join Ghar Ko Swad as a customer or a home chef.
+                            </p>
+                            <form id="registerForm">
+                                <div class="mb-3">
+                                    <label class="form-label">I am registering as</label>
+                                    <div class="d-flex gap-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="userType" id="typeCustomer" value="customer" checked>
+                                            <label class="form-check-label" for="typeCustomer">Customer</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="userType" id="typeChef" value="chef">
+                                            <label class="form-check-label" for="typeChef">Chef</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Side-by-side inputs -->
+                                <div class="row g-2">
+                                    <div class="col-6 mb-3">
+                                        <label class="form-label">Full Name</label>
+                                        <input type="text" class="form-control" id="registerName" placeholder="Your name">
+                                    </div>
+                                    <div class="col-6 mb-3">
+                                        <label class="form-label">Phone</label>
+                                        <input type="tel" class="form-control" placeholder="+91-XXXXXXXXXX">
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-control" placeholder="you@example.com">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Address <span class="text-danger">*</span></label>
+                                    <textarea class="form-control" id="registerAddress" rows="1" placeholder="House no, street, landmark, city" required></textarea>
+                                </div>
+
+                                <div class="mb-3" id="chefInfo" style="display:none;">
+                                    <label class="form-label">Your speciality (for chefs)</label>
+                                    <input type="text" class="form-control" placeholder="e.g. North Indian veg, momos, soups">
+                                    <small class="text-muted">Tell customers what you are best at cooking.</small>
+                                </div>
+
+                                <div class="row g-2">
+                                    <div class="col-6 mb-3">
+                                        <label class="form-label">Password</label>
+                                        <input type="password" class="form-control" placeholder="Create password">
+                                    </div>
+                                    <div class="col-6 mb-3">
+                                        <label class="form-label">Confirm Password</label>
+                                        <input type="password" class="form-control" placeholder="Re-enter password">
+                                    </div>
+                                </div>
+
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="terms">
+                                    <label class="form-check-label" for="terms">I agree to the terms & conditions</label>
+                                </div>
+
+                                <div class="d-grid mb-3">
+                                    <button type="submit" class="btn btn-primary">Register</button>
+                                </div>
+                            </form>
+                            <p class="text-center small mb-0">
+                                Already have an account?
+                                <a href="login.html" class="text-decoration-none">Login</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-4 mt-auto">
+        <div class="container">
+            <div class="row gy-3 align-items-center">
+                <div class="col-md-6">
+                    <small class="text-muted">© <span id="year"></span> Ghar Ko Swad. All rights reserved.</small>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <small class="d-block">Contact: support@gharkoswad.com | +91-9876543210</small>
+                    <div class="mt-1">
+                        <a href="#" class="text-muted me-3"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="text-muted me-3"><i class="bi bi-instagram"></i></a>
+                        <a href="#" class="text-muted"><i class="bi bi-twitter-x"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Toggle chef-specific info
+        document.addEventListener('DOMContentLoaded', () => {
+            const chefRadio = document.getElementById('typeChef');
+            const customerRadio = document.getElementById('typeCustomer');
+            const chefInfo = document.getElementById('chefInfo');
+
+            function updateChefInfo() {
+                chefInfo.style.display = chefRadio.checked ? 'block' : 'none';
+            }
+
+            chefRadio.addEventListener('change', updateChefInfo);
+            customerRadio.addEventListener('change', updateChefInfo);
+
+            updateChefInfo();
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            var name = document.getElementById('registerName').value.trim();
+            localStorage.setItem('gharKoSwad_userName', name || 'User');
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>
