@@ -1,76 +1,40 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Food Details - Ghar Ko Swad{% endblock %}
+{% block title %}{{ food_item.name }} - Ghar Ko Swad{% endblock %}
 {% block content %}
 <section class="py-5">
     <div class="container">
         <div class="row g-4">
             <div class="col-lg-6">
                 <div class="card border-0 shadow-sm">
-                    <img src="https://images.pexels.com/photos/2233729/pexels-photo-2233729.jpeg?auto=compress&cs=tinysrgb&w=1200" class="card-img-top" alt="Homemade Thali">
+                    <img src="{% if food_item.image %}{{ food_item.image.url }}{% elif food_item.image_url %}{{ food_item.image_url }}{% else %}https://images.pexels.com/photos/2233729/pexels-photo-2233729.jpeg?auto=compress&cs=tinysrgb&w=1200{% endif %}" class="card-img-top" alt="{{ food_item.name }}">
                 </div>
             </div>
             <div class="col-lg-6">
-                <h1 class="h3 fw-bold mb-2">Homemade Thali</h1>
+                <h1 class="h3 fw-bold mb-2">{{ food_item.name }}</h1>
                 <div class="mb-2">
-                    <div class="d-flex align-items-center">
-                        <div id="ratingStars" class="text-warning me-2">
-                            <i class="bi bi-star" data-value="1"></i>
-                            <i class="bi bi-star" data-value="2"></i>
-                            <i class="bi bi-star" data-value="3"></i>
-                            <i class="bi bi-star" data-value="4"></i>
-                            <i class="bi bi-star" data-value="5"></i>
-                        </div>
-                        <small class="text-muted"><span id="averageRating">4.5</span> (<span id="reviewCount">120</span> reviews)</small>
-                    </div>
-                    <small class="text-muted">Click the stars to rate this dish.</small>
+                    <span class="text-warning">{% for i in "12345" %}<i class="bi bi-star{% if avg_rating >= forloop.counter %}-fill{% endif %}"></i>{% endfor %}</span>
+                    <small class="text-muted ms-2">{{ avg_rating }} ({{ review_count }} review{{ review_count|pluralize }})</small>
                 </div>
-                <p class="h4 text-success fw-semibold mb-3">₹180</p>
-                <p class="text-muted">
-                    A wholesome homemade thali with fresh seasonal vegetables, dal, rice, roti, salad and a small sweet.
-                    Prepared with less oil and homely spices, perfect for your everyday comfort meal.
-                </p>
+                <p class="h4 text-success fw-semibold mb-3">₹{{ food_item.price }}</p>
+                {% if not is_available %}<p class="alert alert-warning mb-3 mb-0">This item is no longer available for order (sold out / delivered).</p>{% endif %}
+                <p class="text-muted">{% if food_item.description %}{{ food_item.description }}{% else %}Homemade with care by our chef.{% endif %}</p>
                 <div class="mb-3">
                     <h2 class="h6 fw-bold mb-2">Prepared by</h2>
                     <div class="d-flex align-items-center">
                         <div class="rounded-circle bg-warning d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px;">
-                            <span class="fw-bold text-white">A</span>
+                            <span class="fw-bold text-white">{% firstof food_item.chef.get_full_name|slice:":1" food_item.chef.email|slice:":1" "C" %}</span>
                         </div>
                         <div>
-                            <div class="fw-semibold">Chef Anjali</div>
-                            <small class="text-muted">Homemaker | 5+ years home cooking experience</small>
+                            <div class="fw-semibold">{{ food_item.chef.get_full_name|default:food_item.chef.email }}</div>
+                            <small class="text-muted">{% if food_item.chef.speciality %}{{ food_item.chef.speciality }}{% else %}Home chef{% endif %}</small>
                         </div>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <h2 class="h6 fw-bold mb-2">What's included</h2>
-                    <ul class="text-muted small mb-0">
-                        <li>2 sabzi (seasonal vegetables)</li>
-                        <li>Dal (lentils)</li>
-                        <li>Steamed rice & 3 rotis</li>
-                        <li>Salad & pickle</li>
-                        <li>Small sweet / dessert</li>
-                    </ul>
-                </div>
-                <div class="mb-4">
-                    <h2 class="h6 fw-bold mb-2">Delivery info</h2>
-                    <p class="text-muted small mb-0">
-                        Available for lunch and dinner within your local area.
-                        Average preparation & delivery time: 45–60 minutes.
-                    </p>
-                </div>
-                <div class="d-flex align-items-center gap-3 mb-3">
-                    <div>
-                        <label class="form-label small mb-1">Quantity</label>
-                        <input type="number" class="form-control" style="width: 90px;" min="1" value="1">
-                    </div>
-                    <div class="flex-grow-1">
-                        <label class="form-label small mb-1">Preferred time</label>
-                        <input type="time" class="form-control">
                     </div>
                 </div>
                 <div class="d-flex flex-wrap gap-2">
-                    <a href="{% url 'core:order' %}" class="btn btn-primary">Order Now</a>
+                    {% if is_available %}
+                    <a href="{% url 'core:order' %}?item={{ food_item.id }}" class="btn btn-primary">Order Now</a>
+                    {% endif %}
                     <a href="{% url 'core:index' %}#recommended" class="btn btn-outline-secondary">Back to all dishes</a>
                 </div>
             </div>
@@ -83,129 +47,53 @@
         <div class="row g-4">
             <div class="col-lg-6">
                 <h2 class="h5 fw-bold mb-3">Customer Reviews</h2>
-                <div id="reviewsList" class="list-group small"></div>
-                <p id="noReviewsText" class="text-muted small mb-0">No reviews yet. Be the first to review!</p>
+                {% for r in reviews %}
+                <div class="list-group-item border-0 border-bottom mb-2">
+                    <div class="d-flex justify-content-between">
+                        <strong>{{ r.customer.get_full_name|default:r.customer.email }}</strong>
+                        <span class="text-warning">{% for i in "12345" %}<i class="bi bi-star{% if r.rating >= forloop.counter %}-fill{% endif %}"></i>{% endfor %}</span>
+                    </div>
+                    <p class="mb-1">{{ r.text }}</p>
+                    {% if r.chef_reply %}
+                    <div class="bg-light rounded p-2 mt-2 small">
+                        <strong class="text-primary">Chef reply:</strong> {{ r.chef_reply }}
+                    </div>
+                    {% endif %}
+                    <small class="text-muted">{{ r.created_at|date:"M d, Y H:i" }}</small>
+                </div>
+                {% empty %}
+                <p class="text-muted small">No reviews yet. Be the first to review!</p>
+                {% endfor %}
             </div>
             <div class="col-lg-6">
                 <h2 class="h5 fw-bold mb-3">Write a Review</h2>
-                <form id="reviewForm" class="card border-0 shadow-sm">
+                {% if user.is_authenticated and user_profile.role == 'customer' %}
+                <form method="post" action="{% url 'core:food_details' food_item.id %}" class="card border-0 shadow-sm">
+                    {% csrf_token %}
                     <div class="card-body">
                         <div class="mb-3">
-                            <label class="form-label small">Your name</label>
-                            <input type="text" class="form-control" id="reviewerName" placeholder="Optional">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label small">Your rating</label>
-                            <div id="formRatingStars" class="text-warning fs-5">
-                                <i class="bi bi-star" data-value="1"></i>
-                                <i class="bi bi-star" data-value="2"></i>
-                                <i class="bi bi-star" data-value="3"></i>
-                                <i class="bi bi-star" data-value="4"></i>
-                                <i class="bi bi-star" data-value="5"></i>
-                            </div>
-                            <input type="hidden" id="selectedRating" value="0">
+                            <label class="form-label small">Your rating (1–5)</label>
+                            <select name="rating" class="form-select" required>
+                                <option value="">Select</option>
+                                <option value="1">1 ★</option>
+                                <option value="2">2 ★★</option>
+                                <option value="3">3 ★★★</option>
+                                <option value="4">4 ★★★★</option>
+                                <option value="5">5 ★★★★★</option>
+                            </select>
                         </div>
                         <div class="mb-3">
                             <label class="form-label small">Your review</label>
-                            <textarea class="form-control" id="reviewText" rows="3" placeholder="Share your experience"></textarea>
+                            <textarea name="review_text" class="form-control" rows="3" placeholder="Share your experience" required></textarea>
                         </div>
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary btn-sm">Submit Review</button>
-                        </div>
-                        <small id="reviewMessage" class="text-success small d-block mt-2" style="display:none;">Thank you! Your review has been added.</small>
+                        <button type="submit" class="btn btn-primary btn-sm">Submit Review</button>
                     </div>
                 </form>
+                {% else %}
+                <p class="text-muted small">Please <a href="{% url 'core:login' %}">log in</a> as a customer to leave a review.</p>
+                {% endif %}
             </div>
         </div>
     </div>
 </section>
-{% endblock %}
-{% block extra_js %}
-<script>
-(function() {
-    var STORAGE_KEY = 'gharKoSwad_reviews_homemadeThali';
-    function getStoredReviews() {
-        try {
-            var raw = localStorage.getItem(STORAGE_KEY);
-            return raw ? JSON.parse(raw) : [];
-        } catch (e) { return []; }
-    }
-    function saveReviews(reviews) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(reviews));
-    }
-    function renderReviews() {
-        var reviews = getStoredReviews();
-        var list = document.getElementById('reviewsList');
-        var noReviewsText = document.getElementById('noReviewsText');
-        list.innerHTML = '';
-        if (!reviews.length) {
-            noReviewsText.style.display = 'block';
-        } else {
-            noReviewsText.style.display = 'none';
-            reviews.forEach(function(r) {
-                var item = document.createElement('div');
-                item.className = 'list-group-item border-0 border-bottom';
-                item.innerHTML = '<div class="d-flex justify-content-between"><strong>' + (r.name || 'Anonymous') + '</strong><span class="text-warning">' + '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating) + '</span></div><p class="mb-1">' + r.text + '</p><small class="text-muted">' + new Date(r.date).toLocaleString() + '</small>';
-                list.prepend(item);
-            });
-        }
-        var avgEl = document.getElementById('averageRating');
-        var countEl = document.getElementById('reviewCount');
-        if (reviews.length) {
-            var avg = reviews.reduce(function(s, r) { return s + r.rating; }, 0) / reviews.length;
-            avgEl.textContent = avg.toFixed(1);
-            countEl.textContent = reviews.length;
-        }
-    }
-    function setupStarInteraction(containerId, hiddenInputId) {
-        var container = document.getElementById(containerId);
-        var stars = container.querySelectorAll('i[data-value]');
-        var hidden = hiddenInputId ? document.getElementById(hiddenInputId) : null;
-        stars.forEach(function(star) {
-            star.style.cursor = 'pointer';
-            star.addEventListener('mouseenter', function() {
-                var val = parseInt(star.dataset.value, 10);
-                stars.forEach(function(s) {
-                    var sVal = parseInt(s.dataset.value, 10);
-                    s.className = 'bi ' + (sVal <= val ? 'bi-star-fill' : 'bi-star');
-                });
-            });
-            star.addEventListener('click', function() {
-                if (hidden) hidden.value = parseInt(star.dataset.value, 10);
-            });
-        });
-        container.addEventListener('mouseleave', function() {
-            var current = hidden ? parseInt(hidden.value || '0', 10) : 0;
-            stars.forEach(function(s) {
-                var sVal = parseInt(s.dataset.value, 10);
-                s.className = 'bi ' + (sVal <= current ? 'bi-star-fill' : 'bi-star');
-            });
-        });
-    }
-    document.addEventListener('DOMContentLoaded', function() {
-        setupStarInteraction('ratingStars', 'selectedRating');
-        setupStarInteraction('formRatingStars', 'selectedRating');
-        renderReviews();
-        document.getElementById('reviewForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            var name = document.getElementById('reviewerName').value.trim();
-            var text = document.getElementById('reviewText').value.trim();
-            var rating = parseInt(document.getElementById('selectedRating').value || '0', 10);
-            if (!rating || !text) {
-                alert('Please select a rating and write a review.');
-                return;
-            }
-            var reviews = getStoredReviews();
-            reviews.push({ name: name, text: text, rating: rating, date: new Date().toISOString() });
-            saveReviews(reviews);
-            renderReviews();
-            this.reset();
-            document.getElementById('selectedRating').value = '0';
-            var msg = document.getElementById('reviewMessage');
-            msg.style.display = 'block';
-            setTimeout(function() { msg.style.display = 'none'; }, 2500);
-        });
-    });
-})();
-</script>
 {% endblock %}

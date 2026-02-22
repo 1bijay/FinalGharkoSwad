@@ -9,9 +9,10 @@ urlpatterns = [
     path('order/confirmation/<int:order_id>/', views.order_confirmation, name='order_confirmation'),
     path('my-orders/', views.customer_dashboard, name='customer_dashboard'),
     path('login/', views.login_view, name='login'),
+    path('logout/', views.logout_view, name='logout'),
     path('register/', views.register_view, name='register'),
     path('contact/', views.contact, name='contact'),
     path('chefs/', views.chef_profile, name='chef_profile'),
-    path('food/', views.food_details, name='food_details'),
+    path('food/<int:item_id>/', views.food_details, name='food_details'),
     path('chef-dashboard/', views.chef_dashboard, name='chef_dashboard'),
 ]

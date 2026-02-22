@@ -11,6 +11,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-change-me-in-p
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
+# ALLOWED_HOSTS = ['.onrender.com']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -45,6 +46,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'core.context_processors.user_profile',
             ],
         },
     },
@@ -75,7 +77,21 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR]
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
+MEDIA_URL = 'media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+
+# So success/error messages show with correct Bootstrap alert class
+from django.contrib.messages import constants as message_constants
+MESSAGE_TAGS = {
+    message_constants.SUCCESS: 'success',
+    message_constants.ERROR: 'danger',
+    message_constants.WARNING: 'warning',
+    message_constants.INFO: 'info',
+}
+
+AUTH_USER_MODEL = 'core.CustomUser'

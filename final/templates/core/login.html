@@ -17,8 +17,17 @@ body { min-height: 100vh; display: flex; flex-direction: column; background: lin
                     <div class="card-body p-4">
                         <h1 class="h3 fw-bold mb-3 text-center">Login</h1>
                         <p class="text-muted small mb-4 text-center">Welcome back! Login to continue ordering homemade food.</p>
+                        {% for message in messages %}
+                            {% if message.tags == 'success' %}
+                            <div class="alert alert-success alert-dismissible fade show mb-3" role="alert">
+                                <i class="bi bi-check-circle-fill me-2"></i>{{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
                         <form method="post" action="{% url 'core:login' %}">
                             {% csrf_token %}
+                            {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
                             <div class="mb-3">
                                 <label class="form-label">Email</label>
                                 <input type="email" name="username" class="form-control" placeholder="you@example.com" required>

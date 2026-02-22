@@ -21,7 +21,7 @@
                 <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
                     <div>
                         <span class="order-id">Order #{{ order.id }}</span><br>
-                        <strong>{{ order.get_dish_display }}</strong> × {{ order.quantity }}
+                        <strong>{{ order.food_item.name|default:order.get_dish_display|default:"Order" }}</strong> × {{ order.quantity }}
                     </div>
                     <span class="status-badge status-confirmed">{{ order.get_status_display }}</span>
                 </div>

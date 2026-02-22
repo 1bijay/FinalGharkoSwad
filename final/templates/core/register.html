@@ -21,54 +21,54 @@ body { min-height: 100vh; background: linear-gradient(135deg, rgba(250, 250, 249
                         <form method="post" action="{% url 'core:register' %}" id="registerForm">
                             {% csrf_token %}
                             <div class="mb-3">
-                                <label class="form-label">I am registering as</label>
+                                <label class="form-label">I am registering as <span class="text-danger">*</span></label>
                                 <div class="d-flex gap-3">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="userType" id="typeCustomer" value="customer" checked>
+                                        <input class="form-check-input" type="radio" name="userType" id="typeCustomer" value="customer" {% if not form_data.userType or form_data.userType == 'customer' %}checked{% endif %}>
                                         <label class="form-check-label" for="typeCustomer">Customer</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="userType" id="typeChef" value="chef">
+                                        <input class="form-check-input" type="radio" name="userType" id="typeChef" value="chef" {% if form_data.userType == 'chef' %}checked{% endif %}>
                                         <label class="form-check-label" for="typeChef">Chef</label>
                                     </div>
                                 </div>
                             </div>
                             <div class="row g-2">
                                 <div class="col-6 mb-3">
-                                    <label class="form-label">Full Name</label>
-                                    <input type="text" name="name" class="form-control" placeholder="Your name" required>
+                                    <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                                    <input type="text" name="name" class="form-control" placeholder="Your name" value="{{ form_data.name|default:'' }}" required minlength="2">
                                 </div>
                                 <div class="col-6 mb-3">
-                                    <label class="form-label">Phone</label>
-                                    <input type="tel" name="phone" class="form-control" placeholder="+91-XXXXXXXXXX">
+                                    <label class="form-label">Phone <span class="text-danger">*</span></label>
+                                    <input type="tel" name="phone" class="form-control" placeholder="+91-XXXXXXXXXX" value="{{ form_data.phone|default:'' }}" required minlength="10">
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Email</label>
-                                <input type="email" name="email" class="form-control" placeholder="you@example.com" required>
+                                <label class="form-label">Email <span class="text-danger">*</span></label>
+                                <input type="email" name="email" class="form-control" placeholder="you@example.com" value="{{ form_data.email|default:'' }}" required>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Address <span class="text-danger">*</span></label>
-                                <textarea name="address" class="form-control" rows="1" placeholder="House no, street, landmark, city" required></textarea>
+                                <textarea name="address" class="form-control" rows="1" placeholder="House no, street, landmark, city" required minlength="10">{{ form_data.address|default:'' }}</textarea>
                             </div>
                             <div class="mb-3" id="chefInfo" style="display:none;">
-                                <label class="form-label">Your speciality (for chefs)</label>
-                                <input type="text" name="speciality" class="form-control" placeholder="e.g. North Indian veg, momos, soups">
+                                <label class="form-label">Your speciality (for chefs) <span class="text-danger">*</span></label>
+                                <input type="text" name="speciality" class="form-control" placeholder="e.g. North Indian veg, momos, soups" value="{{ form_data.speciality|default:'' }}">
                                 <small class="text-muted">Tell customers what you are best at cooking.</small>
                             </div>
                             <div class="row g-2">
                                 <div class="col-6 mb-3">
-                                    <label class="form-label">Password</label>
-                                    <input type="password" name="password1" class="form-control" placeholder="Create password" required>
+                                    <label class="form-label">Password <span class="text-danger">*</span></label>
+                                    <input type="password" name="password1" class="form-control" placeholder="Min 8 characters" required minlength="8">
                                 </div>
                                 <div class="col-6 mb-3">
-                                    <label class="form-label">Confirm Password</label>
-                                    <input type="password" name="password2" class="form-control" placeholder="Re-enter password" required>
+                                    <label class="form-label">Confirm Password <span class="text-danger">*</span></label>
+                                    <input type="password" name="password2" class="form-control" placeholder="Re-enter password" required minlength="8">
                                 </div>
                             </div>
                             <div class="form-check mb-3">
                                 <input class="form-check-input" type="checkbox" name="terms" id="terms" required>
-                                <label class="form-check-label" for="terms">I agree to the terms & conditions</label>
+                                <label class="form-check-label" for="terms">I agree to the terms & conditions <span class="text-danger">*</span></label>
                             </div>
                             <div class="d-grid mb-3">
                                 <button type="submit" class="btn btn-primary">Register</button>

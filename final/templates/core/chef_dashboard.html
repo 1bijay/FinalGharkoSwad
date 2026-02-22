@@ -28,6 +28,9 @@ body { min-height: 100vh; background: linear-gradient(135deg, rgba(255, 255, 255
 .status-pending { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
 .status-confirmed { background: rgba(30, 41, 59, 0.1); color: var(--ink, #1e293b); }
 .status-completed { background: rgba(46, 204, 113, 0.15); color: var(--success, #22c55e); }
+.status-delivered { background: rgba(46, 204, 113, 0.15); color: var(--success, #22c55e); }
+.status-cancelled { background: rgba(231, 76, 60, 0.15); color: #e74c3c; }
+.status-preparing { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
 .estimated-item { background: var(--cream-warm, #fef3c7); border-left: 4px solid var(--gold, #EA580C); padding: 1rem; border-radius: 8px; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; }
 .estimated-qty { background: var(--gold, #EA580C); color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: 700; }
 .form-section { background: var(--surface, #fff); border-radius: 1rem; padding: 2rem; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06); border: 1px solid var(--border, #e5e7eb); }
@@ -48,6 +51,7 @@ body { min-height: 100vh; background: linear-gradient(135deg, rgba(255, 255, 255
         <a href="#reviews" class="sidebar-item" data-section="reviews"><i class="bi bi-star"></i><span>Reviews</span></a>
         <a href="#earnings" class="sidebar-item" data-section="earnings"><i class="bi bi-wallet2"></i><span>Earnings</span></a>
         <a href="#estimated" class="sidebar-item" data-section="estimated"><i class="bi bi-calendar-check"></i><span>Estimated Items</span></a>
+        <a href="#my-food" class="sidebar-item" data-section="my-food"><i class="bi bi-egg-fried"></i><span>My Food Items</span></a>
         <a href="#post-food" class="sidebar-item" data-section="post-food"><i class="bi bi-plus-circle"></i><span>Post Food Item</span></a>
     </div>
     <div class="main-content">
@@ -59,7 +63,7 @@ body { min-height: 100vh; background: linear-gradient(135deg, rgba(255, 255, 255
                         <div class="d-flex align-items-center">
                             <div class="stat-icon orders"><i class="bi bi-box-seam"></i></div>
                             <div>
-                                <div class="stat-value">24</div>
+                                <div class="stat-value">{{ pending_count }}</div>
                                 <div class="stat-label">Pending Orders</div>
                             </div>
                         </div>
@@ -70,7 +74,7 @@ body { min-height: 100vh; background: linear-gradient(135deg, rgba(255, 255, 255
                         <div class="d-flex align-items-center">
                             <div class="stat-icon earnings"><i class="bi bi-wallet2"></i></div>
                             <div>
-                                <div class="stat-value">₹4,850</div>
+                                <div class="stat-value">₹{{ earnings_month }}</div>
                                 <div class="stat-label">This Month</div>
                             </div>
                         </div>
@@ -81,7 +85,7 @@ body { min-height: 100vh; background: linear-gradient(135deg, rgba(255, 255, 255
                         <div class="d-flex align-items-center">
                             <div class="stat-icon reviews"><i class="bi bi-star-fill"></i></div>
                             <div>
-                                <div class="stat-value">4.8</div>
+                                <div class="stat-value">{{ avg_rating }}</div>
                                 <div class="stat-label">Chef Rating</div>
                             </div>
                         </div>
@@ -92,7 +96,7 @@ body { min-height: 100vh; background: linear-gradient(135deg, rgba(255, 255, 255
                         <div class="d-flex align-items-center">
                             <div class="stat-icon orders"><i class="bi bi-check-circle"></i></div>
                             <div>
-                                <div class="stat-value">127</div>
+                                <div class="stat-value">{{ completed_count }}</div>
                                 <div class="stat-label">Completed Orders</div>
                             </div>
                         </div>
@@ -110,49 +114,45 @@ body { min-height: 100vh; background: linear-gradient(135deg, rgba(255, 255, 255
                             <th>Order ID</th>
                             <th>Food Item</th>
                             <th>Customer</th>
-                            <th>Quantity</th>
+                            <th>Address</th>
+                            <th>Qty</th>
                             <th>Amount</th>
                             <th>Status</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
+                        {% for o in orders %}
                         <tr>
-                            <td>#ORD-2025-001</td>
-                            <td>Homemade Thali</td>
-                            <td>Rajesh Kumar</td>
-                            <td>2</td>
-                            <td>₹360</td>
-                            <td><span class="status-badge status-pending">Pending</span></td>
-                            <td><button class="btn btn-primary btn-sm">Accept</button> <button class="btn btn-secondary btn-sm">Reject</button></td>
+                            <td>#{{ o.id }}</td>
+                            <td>{{ o.food_item.name|default:o.get_dish_display|default:"—" }}</td>
+                            <td>{{ o.name }}{% if o.customer %} <small class="text-muted">({{ o.customer.email }})</small>{% endif %}<br><small class="text-muted">{{ o.phone }}</small></td>
+                            <td><small>{{ o.address|truncatewords:12 }}</small></td>
+                            <td>{{ o.quantity }}</td>
+                            <td>{{ o.total }}</td>
+                            <td><span class="status-badge status-{{ o.status }}">{{ o.get_status_display }}</span></td>
+                            <td>
+                                {% if o.status != 'delivered' and o.status != 'cancelled' %}
+                                <form method="post" action="{% url 'core:chef_dashboard' %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="order_status">
+                                    <input type="hidden" name="order_id" value="{{ o.id }}">
+                                    <select name="status" class="form-select form-select-sm d-inline-block w-auto" onchange="this.form.submit()">
+                                        <option value="pending" {% if o.status == 'pending' %}selected{% endif %}>Pending</option>
+                                        <option value="confirmed" {% if o.status == 'confirmed' %}selected{% endif %}>Confirmed</option>
+                                        <option value="preparing" {% if o.status == 'preparing' %}selected{% endif %}>Preparing</option>
+                                        <option value="delivered" {% if o.status == 'delivered' %}selected{% endif %}>Delivered</option>
+                                        <option value="cancelled" {% if o.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                                    </select>
+                                </form>
+                                {% else %}
+                                <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
                         </tr>
-                        <tr>
-                            <td>#ORD-2025-002</td>
-                            <td>Steamed Momo Platter</td>
-                            <td>Priya Sharma</td>
-                            <td>1</td>
-                            <td>₹150</td>
-                            <td><span class="status-badge status-confirmed">Confirmed</span></td>
-                            <td><button class="btn btn-primary btn-sm">Complete</button> <button class="btn btn-secondary btn-sm">Cancel</button></td>
-                        </tr>
-                        <tr>
-                            <td>#ORD-2025-003</td>
-                            <td>Veg Biryani</td>
-                            <td>Arjun Singh</td>
-                            <td>3</td>
-                            <td>₹600</td>
-                            <td><span class="status-badge status-confirmed">Confirmed</span></td>
-                            <td><button class="btn btn-primary btn-sm">Complete</button> <button class="btn btn-secondary btn-sm">Cancel</button></td>
-                        </tr>
-                        <tr>
-                            <td>#ORD-2025-004</td>
-                            <td>Comfort Veg Soup</td>
-                            <td>Deepak Patel</td>
-                            <td>4</td>
-                            <td>₹480</td>
-                            <td><span class="status-badge status-completed">Completed</span></td>
-                            <td><button class="btn btn-secondary btn-sm">View</button></td>
-                        </tr>
+                        {% empty %}
+                        <tr><td colspan="8" class="text-muted text-center">No orders yet.</td></tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
@@ -168,27 +168,33 @@ body { min-height: 100vh; background: linear-gradient(135deg, rgba(255, 255, 255
                             <th>Food Item</th>
                             <th>Rating</th>
                             <th>Review</th>
+                            <th>Your Reply</th>
                             <th>Date</th>
-                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
+                        {% for r in reviews %}
                         <tr>
-                            <td>Rajesh Kumar</td>
-                            <td>Homemade Thali</td>
-                            <td><span class="text-warning"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></span> 5.0</td>
-                            <td>Excellent taste! Just like homemade food. Highly recommended!</td>
-                            <td>2025-02-10</td>
-                            <td><button class="btn btn-primary btn-sm">Reply</button></td>
+                            <td>{{ r.customer.get_full_name|default:r.customer.email }}</td>
+                            <td>{{ r.food_item.name }}</td>
+                            <td><span class="text-warning">{% for i in "12345" %}<i class="bi bi-star{% if r.rating >= forloop.counter %}-fill{% endif %}"></i>{% endfor %}</span> {{ r.rating }}</td>
+                            <td>{{ r.text|truncatewords:15 }}</td>
+                            <td>
+                                <form method="post" action="{% url 'core:chef_dashboard' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="review_reply">
+                                    <input type="hidden" name="review_id" value="{{ r.id }}">
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" name="chef_reply" class="form-control" placeholder="Reply..." value="{{ r.chef_reply|default:'' }}">
+                                        <button type="submit" class="btn btn-primary">Save</button>
+                                    </div>
+                                </form>
+                            </td>
+                            <td>{{ r.created_at|date:"M d, Y" }}</td>
                         </tr>
-                        <tr>
-                            <td>Priya Sharma</td>
-                            <td>Steamed Momo Platter</td>
-                            <td><span class="text-warning"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i></span> 4.5</td>
-                            <td>Very fresh and delicious. Will order again!</td>
-                            <td>2025-02-09</td>
-                            <td><button class="btn btn-primary btn-sm">Reply</button></td>
-                        </tr>
+                        {% empty %}
+                        <tr><td colspan="6" class="text-muted text-center">No reviews yet.</td></tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
@@ -199,37 +205,82 @@ body { min-height: 100vh; background: linear-gradient(135deg, rgba(255, 255, 255
             <div class="row g-4 mb-4">
                 <div class="col-lg-8">
                     <div class="table-container">
-                        <h5 class="mb-3">Earnings Breakdown</h5>
+                        <h5 class="mb-3">Delivered Orders (earnings)</h5>
                         <table class="table table-hover">
                             <thead>
                                 <tr>
+                                    <th>Order ID</th>
+                                    <th>Item</th>
+                                    <th>Quantity</th>
+                                    <th>Amount</th>
                                     <th>Date</th>
-                                    <th>Orders</th>
-                                    <th>Amount Earned</th>
-                                    <th>Commission (15%)</th>
-                                    <th>Net Amount</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr><td>2025-02-12</td><td>5</td><td>₹850</td><td>₹127.50</td><td>₹722.50</td></tr>
-                                <tr><td>2025-02-11</td><td>4</td><td>₹750</td><td>₹112.50</td><td>₹637.50</td></tr>
-                                <tr><td>2025-02-10</td><td>6</td><td>₹1,200</td><td>₹180</td><td>₹1,020</td></tr>
+                                {% for o in delivered_orders %}
+                                <tr>
+                                    <td>#{{ o.id }}</td>
+                                    <td>{{ o.food_item.name|default:o.get_dish_display|default:"—" }}</td>
+                                    <td>{{ o.quantity }}</td>
+                                    <td>{{ o.total }}</td>
+                                    <td>{{ o.created_at|date:"M d, Y" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="5" class="text-muted">No delivered orders yet.</td></tr>
+                                {% endfor %}
                             </tbody>
                         </table>
                     </div>
                 </div>
                 <div class="col-lg-4">
                     <div class="stat-card">
-                        <div class="stat-value text-success">₹4,850</div>
-                        <div class="stat-label">This Month (Gross)</div>
+                        <div class="stat-value text-success">₹{{ earnings_month }}</div>
+                        <div class="stat-label">This Month (delivered)</div>
                     </div>
                     <div class="stat-card mt-3">
-                        <div class="stat-value" style="color: #3b82f6;">₹4,122.50</div>
-                        <div class="stat-label">Net Income</div>
+                        <div class="stat-value" style="color: #3b82f6;">₹{{ earnings_total }}</div>
+                        <div class="stat-label">Total Earnings (all time)</div>
                     </div>
-                    <p class="text-muted small mt-4"><i class="bi bi-info-circle"></i> Commission is charged at 15% per order.</p>
-                    <button class="btn btn-primary w-100 mt-3">Request Withdrawal</button>
+                    <p class="text-muted small mt-4"><i class="bi bi-info-circle"></i> Earnings from delivered orders only.</p>
                 </div>
+            </div>
+        </section>
+
+        <section id="my-food" class="content-section d-none">
+            <h2 class="section-title">My Food Items</h2>
+            <div class="table-container">
+                <p class="text-muted small mb-3">Manage your posted food. Deleting removes the item from the home page and order options.</p>
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Price</th>
+                            <th>Servings left</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in chef_food_items %}
+                        <tr>
+                            <td><strong>{{ item.name }}</strong><br><small class="text-muted">{{ item.get_category_display }}</small></td>
+                            <td>₹{{ item.price }}</td>
+                            <td>{{ item.servings_available }}</td>
+                            <td>{% if item.servings_available > 0 %}<span class="status-badge status-confirmed">Available</span>{% else %}<span class="status-badge status-cancelled">Sold out</span>{% endif %}</td>
+                            <td>
+                                <form method="post" action="{% url 'core:chef_dashboard' %}" class="d-inline" onsubmit="return confirm('Remove \"{{ item.name|escapejs }}\" from your listings? This cannot be undone.');">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="delete_food">
+                                    <input type="hidden" name="food_item_id" value="{{ item.id }}">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i> Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="5" class="text-muted text-center py-4">No food items yet. <a href="#" class="sidebar-item" data-section="post-food">Post your first item</a>.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </section>
 
@@ -273,60 +324,66 @@ body { min-height: 100vh; background: linear-gradient(135deg, rgba(255, 255, 255
             <div class="row">
                 <div class="col-lg-8">
                     <div class="form-section">
-                        <form>
+                        <form method="post" action="{% url 'core:chef_dashboard' %}" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="post_food">
                             <div class="mb-4">
                                 <label class="form-label">Food Item Name</label>
-                                <input type="text" class="form-control" placeholder="e.g., Butter Chicken Thali">
+                                <input type="text" name="food_name" class="form-control" placeholder="e.g., Butter Chicken Thali" required>
                             </div>
                             <div class="row">
                                 <div class="col-md-6 mb-4">
                                     <label class="form-label">Category</label>
-                                    <select class="form-select">
-                                        <option selected>Select category</option>
-                                        <option>Curries</option>
-                                        <option>Breads</option>
-                                        <option>Soups</option>
-                                        <option>Desserts</option>
+                                    <select name="category" class="form-select">
+                                        <option value="other">Select category</option>
+                                        <option value="curries">Curries</option>
+                                        <option value="breads">Breads</option>
+                                        <option value="soups">Soups</option>
+                                        <option value="desserts">Desserts</option>
+                                        <option value="salads">Salads</option>
+                                        <option value="snacks">Snacks</option>
                                     </select>
                                 </div>
                                 <div class="col-md-6 mb-4">
                                     <label class="form-label">Price (₹)</label>
-                                    <input type="number" class="form-control" placeholder="250" min="0">
+                                    <input type="number" name="price" class="form-control" placeholder="250" min="0" step="0.01" required>
                                 </div>
                             </div>
                             <div class="mb-4">
                                 <label class="form-label">Description</label>
-                                <textarea class="form-control" rows="4" placeholder="Describe your food item, ingredients, and preparation details..."></textarea>
+                                <textarea name="description" class="form-control" rows="4" placeholder="Describe your food item, ingredients, and preparation details..."></textarea>
                             </div>
                             <div class="row">
                                 <div class="col-md-6 mb-4">
                                     <label class="form-label">Servings Available</label>
-                                    <input type="number" class="form-control" placeholder="10" min="1">
+                                    <input type="number" name="servings_available" class="form-control" placeholder="10" min="1" value="10">
                                 </div>
                                 <div class="col-md-6 mb-4">
                                     <label class="form-label">Availability</label>
-                                    <select class="form-select">
-                                        <option selected>Daily</option>
-                                        <option>Weekdays Only</option>
-                                        <option>Weekends Only</option>
+                                    <select name="availability" class="form-select">
+                                        <option value="daily" selected>Daily</option>
+                                        <option value="weekdays">Weekdays Only</option>
+                                        <option value="weekends">Weekends Only</option>
+                                        <option value="custom">Custom</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="mb-4">
-                                <label class="form-label">Food Image</label>
-                                <div class="input-group">
-                                    <input type="file" class="form-control" accept="image/*">
-                                    <button class="btn btn-secondary" type="button">Upload</button>
-                                </div>
-                                <small class="text-muted d-block mt-2">Supported: JPG, PNG, GIF (Max 5MB)</small>
+                                <label class="form-label">Food Image (from device)</label>
+                                <input type="file" name="image" class="form-control" accept="image/*">
+                                <small class="text-muted d-block mt-1">JPG, PNG or GIF. Optional.</small>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label">Or Image URL (optional)</label>
+                                <input type="url" name="image_url" class="form-control" placeholder="https://...">
                             </div>
                             <div class="mb-4">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="vegan" checked>
+                                    <input class="form-check-input" type="checkbox" name="is_vegetarian" id="vegan" checked>
                                     <label class="form-check-label" for="vegan">Vegetarian/Vegan</label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="spicy">
+                                    <input class="form-check-input" type="checkbox" name="is_spicy" id="spicy">
                                     <label class="form-check-label" for="spicy">Spicy</label>
                                 </div>
                             </div>

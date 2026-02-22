@@ -17,95 +17,44 @@
         </div>
 
         <div class="row g-4">
+            {% for chef in chefs %}
             <div class="col-md-6 col-lg-4">
                 <div class="card h-100 shadow-sm border-0">
                     <div class="card-body">
                         <div class="d-flex align-items-center mb-3">
                             <div class="rounded-circle bg-warning d-flex align-items-center justify-content-center me-3" style="width: 56px; height: 56px;">
-                                <span class="fw-bold text-white fs-4">A</span>
+                                <span class="fw-bold text-white fs-4">{% firstof chef.first_name|slice:":1" chef.email|slice:":1" "C" %}</span>
                             </div>
                             <div>
-                                <h2 class="h6 fw-bold mb-0">Chef Anjali</h2>
-                                <small class="text-muted">North Indian · Veg · Daily meals</small>
+                                <h2 class="h6 fw-bold mb-0">{% firstof chef.get_full_name chef.first_name chef.email %}</h2>
+                                <small class="text-muted">{% firstof chef.speciality "Home chef" %} · {{ chef.food_count }} dish{{ chef.food_count|pluralize:"es" }}</small>
                             </div>
                         </div>
                         <p class="small text-muted mb-2">
-                            Specialises in light, homely food with less oil and balanced spices. Perfect for office-goers and students.
+                            {% if chef.speciality %}{{ chef.speciality }}{% else %}Fresh homemade meals from our kitchen.{% endif %}
                         </p>
                         <div class="d-flex align-items-center mb-2">
                             <span class="text-warning me-1">
-                                <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i>
+                                {% for i in "12345" %}<i class="bi bi-star{% if chef.avg_rating and chef.avg_rating >= forloop.counter %}-fill{% endif %}"></i>{% endfor %}
                             </span>
-                            <small class="text-muted">4.6 (150 ratings)</small>
+                            <small class="text-muted">{% if chef.avg_rating %}{{ chef.avg_rating|floatformat:1 }}{% else %}—{% endif %} ({{ chef.review_count }} review{{ chef.review_count|pluralize }})</small>
                         </div>
-                        <small class="d-block text-muted mb-3">Location: Baneshwor · Approx. delivery time: 45–60 mins</small>
+                        {% if chef.address %}<small class="d-block text-muted mb-3">{{ chef.address|truncatewords:8 }}</small>{% endif %}
                         <div class="d-flex flex-wrap gap-2">
-                            <a href="{% url 'core:food_details' %}" class="btn btn-primary btn-sm">View signature dish</a>
-                            <a href="{% url 'core:order' %}" class="btn btn-outline-secondary btn-sm">Order from this chef</a>
+                            <a href="{% url 'core:index' %}#recommended" class="btn btn-primary btn-sm">View dishes</a>
+                            <a href="{% url 'core:index' %}#recommended" class="btn btn-outline-secondary btn-sm">Order from this chef</a>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <div class="col-md-6 col-lg-4">
-                <div class="card h-100 shadow-sm border-0">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center me-3" style="width: 56px; height: 56px;">
-                                <span class="fw-bold text-white fs-4">S</span>
-                            </div>
-                            <div>
-                                <h2 class="h6 fw-bold mb-0">Chef Sushant</h2>
-                                <small class="text-muted">Momos · Nepali · Snacks</small>
-                            </div>
-                        </div>
-                        <p class="small text-muted mb-2">
-                            Known for soft, juicy momos with freshly prepared chutneys and hygienic home kitchen setup.
-                        </p>
-                        <div class="d-flex align-items-center mb-2">
-                            <span class="text-warning me-1">
-                                <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star"></i>
-                            </span>
-                            <small class="text-muted">4.3 (90 ratings)</small>
-                        </div>
-                        <small class="d-block text-muted mb-3">Location: Koteshwor · Approx. delivery time: 40–55 mins</small>
-                        <div class="d-flex flex-wrap gap-2">
-                            <a href="{% url 'core:food_details' %}" class="btn btn-primary btn-sm">View signature dish</a>
-                            <a href="{% url 'core:order' %}" class="btn btn-outline-secondary btn-sm">Order from this chef</a>
-                        </div>
-                    </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="text-center py-5">
+                    <p class="text-muted mb-2">No home chefs with listed dishes yet.</p>
+                    <p class="small text-muted">Chefs who post food for sell will appear here. <a href="{% url 'core:register' %}">Join as a chef</a> and post your first dish from the Chef Dashboard.</p>
                 </div>
             </div>
-
-            <div class="col-md-6 col-lg-4">
-                <div class="card h-100 shadow-sm border-0">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="rounded-circle bg-success d-flex align-items-center justify-content-center me-3" style="width: 56px; height: 56px;">
-                                <span class="fw-bold text-white fs-4">M</span>
-                            </div>
-                            <div>
-                                <h2 class="h6 fw-bold mb-0">Chef Meera</h2>
-                                <small class="text-muted">Soups · Light meals</small>
-                            </div>
-                        </div>
-                        <p class="small text-muted mb-2">
-                            Focuses on comfort soups and easily digestible meals, ideal for kids, elders and recovery diets.
-                        </p>
-                        <div class="d-flex align-items-center mb-2">
-                            <span class="text-warning me-1">
-                                <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star"></i><i class="bi bi-star"></i>
-                            </span>
-                            <small class="text-muted">4.0 (60 ratings)</small>
-                        </div>
-                        <small class="d-block text-muted mb-3">Location: Lazimpat · Approx. delivery time: 35–50 mins</small>
-                        <div class="d-flex flex-wrap gap-2">
-                            <a href="{% url 'core:food_details' %}" class="btn btn-primary btn-sm">View signature dish</a>
-                            <a href="{% url 'core:order' %}" class="btn btn-outline-secondary btn-sm">Order from this chef</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            {% endfor %}
         </div>
     </div>
 </section>

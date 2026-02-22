@@ -10,20 +10,28 @@
                     <div class="card-body p-4">
                         <h1 class="h3 fw-bold mb-3 text-center">Place Your Order</h1>
                         <p class="text-muted small mb-4 text-center">Fill the details below and we will confirm your homemade meal order.</p>
-                        <form method="post" action="{% url 'core:order' %}" id="orderForm">
+                        <form method="post" action="{% url 'core:order' %}{% if food_item %}?item={{ food_item.id }}{% endif %}" id="orderForm">
                             {% csrf_token %}
+                            {% if food_item %}
+                            <input type="hidden" name="food_item_id" value="{{ food_item.id }}">
+                            <div class="mb-3">
+                                <label class="form-label">Dish</label>
+                                <input type="text" class="form-control" value="{{ food_item.name }} — ₹{{ food_item.price }}" readonly>
+                            </div>
+                            {% endif %}
                             <div class="mb-3">
                                 <label class="form-label">Full Name</label>
-                                <input type="text" class="form-control" name="name" id="orderName" placeholder="Your name" required>
+                                <input type="text" class="form-control" name="name" id="orderName" placeholder="Your name" value="{{ order_name|default:'' }}" required>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Phone Number</label>
-                                <input type="tel" class="form-control" name="phone" id="orderPhone" placeholder="+91-XXXXXXXXXX" required>
+                                <input type="tel" class="form-control" name="phone" id="orderPhone" placeholder="+91-XXXXXXXXXX" value="{{ order_phone|default:'' }}" required>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Delivery Address</label>
-                                <textarea class="form-control" name="address" id="orderAddress" rows="1" placeholder="House no, street, landmark, city" required></textarea>
+                                <textarea class="form-control" name="address" id="orderAddress" rows="2" placeholder="House no, street, landmark, city" required>{{ order_address|default:'' }}</textarea>
                             </div>
+                            {% if not food_item %}
                             <div class="mb-3">
                                 <label class="form-label">Select Dish</label>
                                 <select class="form-select" name="dish" id="orderDish">
@@ -33,10 +41,11 @@
                                     <option value="soup">Comfort Veg Soup</option>
                                 </select>
                             </div>
+                            {% endif %}
                             <div class="row g-3 mb-3">
                                 <div class="col-6">
                                     <label class="form-label">Rate (per plate)</label>
-                                    <input type="text" class="form-control" id="orderRate" value="₹180" readonly>
+                                    <input type="text" class="form-control" id="orderRate" value="{% if food_item %}₹{{ food_item.price }}{% else %}₹180{% endif %}" readonly>
                                 </div>
                                 <div class="col-6">
                                     <label class="form-label">Quantity</label>
@@ -45,8 +54,8 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Total Amount</label>
-                                <input type="text" class="form-control" id="orderTotal" value="₹180" readonly>
-                                <input type="hidden" name="total" id="orderTotalHidden" value="₹180">
+                                <input type="text" class="form-control" id="orderTotal" value="{% if food_item %}₹{{ food_item.price }}{% else %}₹180{% endif %}" readonly>
+                                <input type="hidden" name="total" id="orderTotalHidden" value="{% if food_item %}₹{{ food_item.price }}{% else %}₹180{% endif %}">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Preferred Delivery Time</label>
@@ -71,22 +80,30 @@
 <script>
 (function() {
     var prices = { thali: 180, momo: 150, biryani: 200, soup: 120 };
+    var foodItemPrice = {% if food_item %}{{ food_item.price }}{% else %}0{% endif %};
     var dishEl = document.getElementById('orderDish');
     var qtyEl = document.getElementById('orderQty');
     var rateEl = document.getElementById('orderRate');
     var totalEl = document.getElementById('orderTotal');
     var totalHidden = document.getElementById('orderTotalHidden');
+    if (!qtyEl || !rateEl) return;
     function update() {
-        var key = dishEl.value;
         var qty = Math.max(1, parseInt(qtyEl.value, 10) || 1);
-        var price = prices[key] || 0;
-        var total = price * qty;
         qtyEl.value = qty;
+        var price;
+        if (foodItemPrice > 0) {
+            price = foodItemPrice;
+        } else if (dishEl) {
+            price = prices[dishEl.value] || 180;
+        } else {
+            price = 180;
+        }
+        var total = price * qty;
         rateEl.value = '₹' + price;
         totalEl.value = '₹' + total;
-        totalHidden.value = '₹' + total;
+        if (totalHidden) totalHidden.value = '₹' + total;
     }
-    dishEl.addEventListener('change', update);
+    if (dishEl) dishEl.addEventListener('change', update);
     qtyEl.addEventListener('input', update);
     update();
 })();
