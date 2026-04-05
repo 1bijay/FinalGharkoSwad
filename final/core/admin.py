@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import Order, CustomUser, FoodItem, Review
+from .models import Order, CustomUser, FoodItem, Review, ContactMessage
 
 
 @admin.register(CustomUser)
@@ -35,3 +35,10 @@ class OrderAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'chef', 'quantity', 'total', 'status', 'created_at')
     list_filter = ('status',)
     search_fields = ('name', 'phone', 'address')
+
+
+@admin.register(ContactMessage)
+class ContactMessageAdmin(admin.ModelAdmin):
+    list_display = ('name', 'email', 'phone', 'created_at')
+    search_fields = ('name', 'email', 'message')
+    readonly_fields = ('name', 'email', 'phone', 'message', 'created_at')

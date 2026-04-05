@@ -22,7 +22,8 @@
                             <div class="order-summary-row"><span class="text-muted">Name</span><strong>{{ order.name }}</strong></div>
                             <div class="order-summary-row"><span class="text-muted">Phone</span><strong>{{ order.phone }}</strong></div>
                             <div class="order-summary-row"><span class="text-muted">Delivery address</span><strong class="text-end" style="max-width: 60%;">{{ order.address }}</strong></div>
-                            <div class="order-summary-row"><span class="text-muted">Dish</span><strong>{{ order.get_dish_display }}</strong></div>
+                            {% if order.chef.address %}<div class="order-summary-row"><span class="text-muted">Address</span><strong class="text-end" style="max-width: 60%;">{{ order.chef.address }}</strong></div>{% endif %}
+                            <div class="order-summary-row"><span class="text-muted">Dish</span><strong>{% if order.food_item %}{{ order.food_item.name }}{% else %}{{ order.get_dish_display }}{% endif %}</strong></div>
                             <div class="order-summary-row"><span class="text-muted">Quantity</span><strong>{{ order.quantity }}</strong></div>
                             <div class="order-summary-row"><span class="text-muted">Delivery time</span><strong>{{ order.delivery_time }}</strong></div>
                             <div class="order-summary-row pt-2 mt-2"><span>Total amount</span><strong class="text-success">{{ order.total }}</strong></div>

@@ -3,17 +3,26 @@
 {% block title %}Register - Ghar Ko Swad{% endblock %}
 {% block extra_css %}
 <style>
-body { min-height: 100vh; background: linear-gradient(135deg, rgba(250, 250, 249, 0.9), rgba(245, 243, 240, 0.92)), url('https://images.pexels.com/photos/905163/pexels-photo-905163.jpeg?auto=compress&cs=tinysrgb&w=1600') center/cover no-repeat fixed; }
-.card { border-radius: 16px; animation: fadeUp 0.8s ease-out both; }
+body { min-height: 100vh; background: var(--cream-warm, #F5F3F0); position: relative; }
+body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(ellipse 80% 50% at 50% 30%, rgba(234, 88, 12, 0.06), transparent 60%); pointer-events: none; z-index: 0; }
+.card { border-radius: 16px; animation: fadeUp 0.8s ease-out both; border: 1px solid var(--border, #E7E5E4); background: var(--surface, #fff); }
 .card-body { padding: 2.5rem !important; }
+.register-page-img { border-radius: 16px; object-fit: cover; height: 100%; min-height: 280px; box-shadow: 0 4px 20px var(--shadow, rgba(41,37,36,0.06)); }
+section .container { position: relative; z-index: 1; }
+section .btn-primary { background: var(--gold, #EA580C); border-color: var(--gold); }
+section .btn-primary:hover { background: var(--gold-dark, #C2410C); border-color: var(--gold-dark); }
+@media (max-width: 991px) { .register-page-img { min-height: 200px; } }
 @media (max-width: 576px) { .card-body { padding: 1.5rem !important; } }
 </style>
 {% endblock %}
 {% block content %}
 <section class="py-5">
     <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-4 col-md-6">
+        <div class="row justify-content-center align-items-center g-4">
+            <div class="col-lg-5 col-md-6 order-md-2 text-center">
+                <img src="https://images.pexels.com/photos/674574/pexels-photo-674574.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Join as customer or chef" class="register-page-img w-100 shadow-sm">
+            </div>
+            <div class="col-lg-4 col-md-6 order-md-1">
                 <div class="card shadow-sm border-0">
                     <div class="card-body p-4">
                         <h1 class="h3 fw-bold mb-3 text-center">Create an Account</h1>
@@ -40,7 +49,7 @@ body { min-height: 100vh; background: linear-gradient(135deg, rgba(250, 250, 249
                                 </div>
                                 <div class="col-6 mb-3">
                                     <label class="form-label">Phone <span class="text-danger">*</span></label>
-                                    <input type="tel" name="phone" class="form-control" placeholder="+91-XXXXXXXXXX" value="{{ form_data.phone|default:'' }}" required minlength="10">
+                                    <input type="tel" name="phone" class="form-control" placeholder="+977-XXXXXXXXXX" value="{{ form_data.phone|default:'' }}" required minlength="10">
                                 </div>
                             </div>
                             <div class="mb-3">

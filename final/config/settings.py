@@ -96,3 +96,23 @@ MESSAGE_TAGS = {
 }
 
 AUTH_USER_MODEL = 'core.CustomUser'
+
+# Contact form: emails are sent to this address
+CONTACT_EMAIL_TO = os.environ.get('CONTACT_EMAIL_TO', 'rauniyarbizzay@gmail.com')
+
+# Email: when EMAIL_HOST_PASSWORD is set, use Gmail SMTP; else use console (messages print in terminal).
+# For real Gmail delivery: set env EMAIL_HOST_PASSWORD to a Gmail App Password (Account → Security → 2-Step Verification → App passwords).
+_email_pwd = os.environ.get('EMAIL_HOST_PASSWORD', '')
+if _email_pwd:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
+    EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
+    EMAIL_USE_TLS = True
+    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'rauniyarbizzay@gmail.com')
+    EMAIL_HOST_PASSWORD = _email_pwd
+    DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    EMAIL_HOST_USER = ''
+    EMAIL_HOST_PASSWORD = ''
+    DEFAULT_FROM_EMAIL = 'noreply@gharkoswad.com'

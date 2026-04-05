@@ -18,6 +18,12 @@
                                 <label class="form-label">Dish</label>
                                 <input type="text" class="form-control" value="{{ food_item.name }} — ₹{{ food_item.price }}" readonly>
                             </div>
+                            {% if food_item.chef.address %}
+                            <div class="mb-3">
+                                <label class="form-label">Address</label>
+                                <p class="text-muted small mb-0"><i class="bi bi-geo-alt me-1"></i>{{ food_item.chef.address }}</p>
+                            </div>
+                            {% endif %}
                             {% endif %}
                             <div class="mb-3">
                                 <label class="form-label">Full Name</label>
@@ -25,7 +31,7 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Phone Number</label>
-                                <input type="tel" class="form-control" name="phone" id="orderPhone" placeholder="+91-XXXXXXXXXX" value="{{ order_phone|default:'' }}" required>
+                                <input type="tel" class="form-control" name="phone" id="orderPhone" placeholder="+977-XXXXXXXXXX" value="{{ order_phone|default:'' }}" required>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Delivery Address</label>
@@ -49,7 +55,20 @@
                                 </div>
                                 <div class="col-6">
                                     <label class="form-label">Quantity</label>
-                                    <input type="number" class="form-control" name="quantity" id="orderQty" min="1" value="1">
+                                    <input
+                                        type="number"
+                                        class="form-control"
+                                        name="quantity"
+                                        id="orderQty"
+                                        min="1"
+                                        {% if food_item %}max="{{ food_item.servings_available }}"{% endif %}
+                                        value="{{ order_quantity|default:1 }}"
+                                    >
+                                    {% if food_item %}
+                                    <small class="text-muted small d-block mt-1">
+                                        Available: {{ food_item.servings_available }} plate{{ food_item.servings_available|pluralize }}
+                                    </small>
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="mb-3">
@@ -81,6 +100,7 @@
 (function() {
     var prices = { thali: 180, momo: 150, biryani: 200, soup: 120 };
     var foodItemPrice = {% if food_item %}{{ food_item.price }}{% else %}0{% endif %};
+    var maxServings = {% if food_item %}{{ food_item.servings_available|default:999 }}{% else %}999{% endif %};
     var dishEl = document.getElementById('orderDish');
     var qtyEl = document.getElementById('orderQty');
     var rateEl = document.getElementById('orderRate');
@@ -89,6 +109,7 @@
     if (!qtyEl || !rateEl) return;
     function update() {
         var qty = Math.max(1, parseInt(qtyEl.value, 10) || 1);
+        qty = Math.min(qty, maxServings);
         qtyEl.value = qty;
         var price;
         if (foodItemPrice > 0) {

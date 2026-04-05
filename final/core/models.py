@@ -51,13 +51,19 @@ class CustomUser(AbstractUser):
 
 class FoodItem(models.Model):
     CATEGORY_CHOICES = [
-        ('curries', 'Curries'),
+        ('rice', 'Rice'),
+        ('veg', 'Veg'),
+        ('non_veg', 'Non-veg'),
+        ('sweets_mithai', 'Sweets (Mithai)'),
         ('breads', 'Breads'),
+        ('sweets_desserts', 'Sweets & Desserts'),
+        ('pickles_sides', 'Pickles & Side Dishes'),
+        ('curries', 'Curries'),
         ('soups', 'Soups'),
-        ('desserts', 'Desserts'),
-        ('salads', 'Salads'),
         ('snacks', 'Snacks'),
-        ('other', 'Other'),
+        ('nepali', 'Nepali'),
+        ('indian', 'Indian'),
+        ('other', 'Other (add your own)'),
     ]
     AVAILABILITY_CHOICES = [
         ('daily', 'Daily'),
@@ -67,7 +73,8 @@ class FoodItem(models.Model):
     ]
     chef = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='food_items')
     name = models.CharField(max_length=200)
-    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='other')
+    category = models.CharField(max_length=30, choices=CATEGORY_CHOICES, default='other')
+    category_custom = models.CharField(max_length=100, blank=True, help_text='When category is Other, your own category name')
     price = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField(blank=True)
     image = models.ImageField(upload_to='food/%Y/%m/', blank=True, null=True)
@@ -80,6 +87,15 @@ class FoodItem(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+
+    def get_display_category(self):
+        """Show custom category name when chef chose 'Other', else the choice label."""
+        if self.category == 'other' and getattr(self, 'category_custom', None):
+            return (self.category_custom or '').strip()
+        try:
+            return self.get_category_display()
+        except (AttributeError, ValueError):
+            return getattr(self, 'category', '') or 'Other'
 
     def __str__(self):
         return f"{self.name} by {self.chef.get_full_name() or self.chef.email}"
@@ -138,3 +154,18 @@ class Order(models.Model):
     def __str__(self):
         dish_name = self.food_item.name if self.food_item else (self.get_dish_display() if self.dish else 'Order')
         return f"Order #{self.id} - {dish_name} by {self.name}"
+
+
+class ContactMessage(models.Model):
+    """Contact form submissions - stored so you never lose a message."""
+    name = models.CharField(max_length=200)
+    email = models.EmailField()
+    phone = models.CharField(max_length=20, blank=True)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.name} ({self.email}) - {self.created_at}"

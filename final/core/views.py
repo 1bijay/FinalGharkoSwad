@@ -12,10 +12,31 @@ from django.contrib import messages
 from django.db.models import Count, Avg, Q
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
-from .models import Order, FoodItem, Review
+from .models import Order, FoodItem, Review, ContactMessage
 
 User = get_user_model()
 EMAIL_REGEX = re.compile(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
+# Password strength: at least one upper, one lower, one digit, one special (8+ chars)
+PASSWORD_UPPER = re.compile(r'[A-Z]')
+PASSWORD_LOWER = re.compile(r'[a-z]')
+PASSWORD_DIGIT = re.compile(r'\d')
+PASSWORD_SPECIAL = re.compile(r'[!@#$%^&*()_+\-=\[\]{};\':"\\|,.<>/?`~]')
+
+
+def _validate_password_strength(password):
+    """Return list of error messages for weak password; empty list if valid."""
+    errs = []
+    if len(password) < 8:
+        errs.append('Password must be at least 8 characters.')
+    if not PASSWORD_UPPER.search(password):
+        errs.append('Password must contain at least one uppercase letter.')
+    if not PASSWORD_LOWER.search(password):
+        errs.append('Password must contain at least one lowercase letter.')
+    if not PASSWORD_DIGIT.search(password):
+        errs.append('Password must contain at least one number.')
+    if not PASSWORD_SPECIAL.search(password):
+        errs.append('Password must contain at least one special character (!@#$%^&* etc.).')
+    return errs
 
 
 def _parse_total(s):
@@ -31,15 +52,35 @@ def _parse_total(s):
 
 def index(request):
     from django.db.models import Avg
-    # Only show food items that still have servings available (not sold out / delivered)
-    food_items = (
+    from .recommendations import get_recommended_food_items
+    # Algorithm (last updated): cosine similarity — see core/recommendations.py
+    # Recommends food by user preference vector (orders + reviews) vs item feature vectors.
+    recommended_ids = get_recommended_food_items(
+        request.user,
+        exclude_item_ids=None,
+        exclude_chef_id=request.user.id if getattr(request.user, 'user_type', None) == 'chef' else None,
+        top_n=24,
+    )
+    available_list = list(
         FoodItem.objects.filter(servings_available__gt=0)
         .select_related('chef')
         .annotate(
             review_count=Count('reviews'),
             avg_rating=Avg('reviews__rating'),
         )
-    )[:24]
+    )
+    rec_ids_set = set(recommended_ids)
+    id_to_item = {f.id: f for f in available_list if f.id in rec_ids_set}
+    food_items = []
+    for fid in recommended_ids:
+        if fid in id_to_item and len(food_items) < 24:
+            food_items.append(id_to_item[fid])
+    if len(food_items) < 24:
+        existing_ids = {f.id for f in food_items}
+        for f in available_list:
+            if f.id not in existing_ids and len(food_items) < 24:
+                food_items.append(f)
+                existing_ids.add(f.id)
     return render(request, 'core/index.html', {'food_items': food_items})
 
 
@@ -52,12 +93,17 @@ def order(request):
         if next_url:
             login_url += '?' + urlencode({'next': next_url})
         return redirect(login_url)
+    # Authorization: inactive users cannot order
+    if not getattr(request.user, 'is_active', True):
+        auth_logout(request)
+        messages.error(request, 'Your account has been disabled. Please contact support.')
+        return redirect('core:login')
 
     food_item = None
     item_id = request.GET.get('item') or (request.POST.get('food_item_id') if request.method == 'POST' else None)
     if item_id:
         try:
-            food_item = FoodItem.objects.get(id=int(item_id))
+            food_item = FoodItem.objects.select_related('chef').get(id=int(item_id))
         except (ValueError, FoodItem.DoesNotExist):
             food_item = None
 
@@ -78,14 +124,17 @@ def order(request):
         name = request.POST.get('name', '').strip()
         phone = request.POST.get('phone', '').strip()
         address = request.POST.get('address', '').strip()
-        quantity = int(request.POST.get('quantity', 1) or 1)
+        try:
+            quantity = int(request.POST.get('quantity', 1) or 1)
+        except (TypeError, ValueError):
+            quantity = 1
         total = request.POST.get('total', '₹0')
         delivery_time = request.POST.get('delivery_time', '')
         notes = request.POST.get('notes', '').strip()
         food_item_id = request.POST.get('food_item_id')
         if food_item_id and not food_item:
             try:
-                food_item = FoodItem.objects.get(id=int(food_item_id))
+                food_item = FoodItem.objects.select_related('chef').get(id=int(food_item_id))
             except (ValueError, FoodItem.DoesNotExist):
                 pass
         # Re-check after resolving food_item from POST (chef might have selected own item)
@@ -99,7 +148,27 @@ def order(request):
                 'order_name': order_name,
                 'order_phone': order_phone,
                 'order_address': order_address,
+                'order_quantity': quantity,
             })
+
+        # When ordering a specific food item, do not allow ordering more than available servings
+        if food_item:
+            available = max(0, food_item.servings_available or 0)
+            if available <= 0:
+                messages.error(request, 'This item is sold out and can no longer be ordered.')
+                return redirect('core:index')
+            if quantity > available:
+                messages.error(request, f'You can only order up to {available} serving(s) of this item. Please reduce your quantity.')
+                order_name = name
+                order_phone = phone
+                order_address = address
+                return render(request, 'core/order.html', {
+                    'food_item': food_item,
+                    'order_name': order_name,
+                    'order_phone': order_phone,
+                    'order_address': order_address,
+                    'order_quantity': available,
+                })
         if delivery_time:
             delivery_time = delivery_time + ' (preferred)'
         else:
@@ -127,6 +196,10 @@ def order(request):
             status='pending' if chef else 'confirmed',
         )
         order_obj = Order.objects.latest('created_at')
+        # Reduce available servings when order is placed so others see updated count
+        if food_item:
+            food_item.servings_available = max(0, (food_item.servings_available or 0) - quantity)
+            food_item.save()
         request.session['last_order_id'] = order_obj.id
         return redirect('core:order_confirmation', order_id=order_obj.id)
 
@@ -140,16 +213,23 @@ def order(request):
         order_phone = getattr(user, 'phone', '') or ''
         order_address = getattr(user, 'address', '') or ''
 
+    order_quantity = 1
+    if food_item:
+        available = max(0, food_item.servings_available or 0)
+        if available <= 0:
+            messages.error(request, 'This item is sold out and can no longer be ordered.')
+            return redirect('core:index')
     return render(request, 'core/order.html', {
         'food_item': food_item,
         'order_name': order_name,
         'order_phone': order_phone,
         'order_address': order_address,
+        'order_quantity': order_quantity,
     })
 
 
 def order_confirmation(request, order_id):
-    order_obj = get_object_or_404(Order, id=order_id)
+    order_obj = get_object_or_404(Order.objects.select_related('chef', 'food_item'), id=order_id)
     return render(request, 'core/order_confirmation.html', {'order': order_obj})
 
 
@@ -162,6 +242,11 @@ def _user_role(user):
 
 @login_required(login_url='core:login')
 def customer_dashboard(request):
+    # Authorization: only active customers
+    if not getattr(request.user, 'is_active', True):
+        auth_logout(request)
+        messages.error(request, 'Your account has been disabled. Please contact support.')
+        return redirect('core:login')
     if _user_role(request.user) != 'customer':
         messages.warning(request, 'Only customers can access My Orders.')
         return redirect('core:index')
@@ -171,6 +256,7 @@ def customer_dashboard(request):
 
 def login_view(request):
     next_url = request.GET.get('next') or request.POST.get('next', '')
+    # Authorization: already logged-in users redirect
     if request.user.is_authenticated:
         if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts=request.get_host()):
             return redirect(next_url)
@@ -180,8 +266,23 @@ def login_view(request):
     if request.method == 'POST':
         email = request.POST.get('username', '').strip().lower()
         password = request.POST.get('password', '')
+        # Validation: email format
+        if not email:
+            messages.error(request, 'Email is required.')
+            return render(request, 'core/login.html', {'next': next_url})
+        if not EMAIL_REGEX.match(email):
+            messages.error(request, 'Enter a valid email address.')
+            return render(request, 'core/login.html', {'next': next_url})
+        if not password:
+            messages.error(request, 'Password is required.')
+            return render(request, 'core/login.html', {'next': next_url})
+        # Authentication
         user = authenticate(request, username=email, password=password)
         if user is not None:
+            # Authorization: inactive accounts cannot log in
+            if not getattr(user, 'is_active', True):
+                messages.error(request, 'This account has been disabled. Please contact support.')
+                return render(request, 'core/login.html', {'next': next_url})
             auth_login(request, user)
             next_url = request.POST.get('next', '')
             if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts=request.get_host()):
@@ -197,57 +298,75 @@ def login_view(request):
 
 
 def register_view(request):
+    # Authorization: logged-in users redirect
     if request.user.is_authenticated:
         if _user_role(request.user) == 'chef':
             return redirect('core:chef_dashboard')
         return redirect('core:index')
     if request.method == 'POST':
-        email = request.POST.get('email', '').strip().lower()
-        name = request.POST.get('name', '').strip()
+        email = request.POST.get('email', '').strip().lower()[:254]
+        name = request.POST.get('name', '').strip()[:100]
         password1 = request.POST.get('password1', '')
         password2 = request.POST.get('password2', '')
         user_type = request.POST.get('userType', 'customer')
         if user_type not in ('customer', 'chef'):
             user_type = 'customer'
-        phone = request.POST.get('phone', '').strip()
-        address = request.POST.get('address', '').strip()
-        speciality = request.POST.get('speciality', '').strip() if user_type == 'chef' else ''
+        phone = request.POST.get('phone', '').strip()[:20]
+        address = request.POST.get('address', '').strip()[:500]
+        speciality = (request.POST.get('speciality', '').strip()[:200]) if user_type == 'chef' else ''
         terms = request.POST.get('terms') == 'on'
 
         errors = []
 
+        # Name validation
         if not name:
             errors.append('Full name is required.')
         elif len(name) < 2:
             errors.append('Full name must be at least 2 characters.')
+        elif not re.search(r'[a-zA-Z\u0900-\u097F]', name):
+            errors.append('Full name must contain at least one letter.')
 
+        # Email validation
         if not email:
             errors.append('Email is required.')
         elif not EMAIL_REGEX.match(email):
             errors.append('Enter a valid email address.')
+        elif len(email) > 254:
+            errors.append('Email address is too long.')
         elif User.objects.filter(email=email).exists():
             errors.append('An account with this email already exists.')
 
+        # Phone validation
         if not phone:
             errors.append('Phone number is required.')
         else:
             digits_only = re.sub(r'\D', '', phone)
             if len(digits_only) < 10:
                 errors.append('Enter a valid phone number (at least 10 digits).')
+            elif len(digits_only) > 15:
+                errors.append('Phone number is too long.')
 
+        # Address validation
         if not address:
             errors.append('Address is required.')
         elif len(address) < 10:
             errors.append('Address must be at least 10 characters.')
+        elif len(address) > 500:
+            errors.append('Address must be 500 characters or less.')
 
+        # Chef speciality
         if user_type == 'chef' and not speciality:
             errors.append('Please tell us your cooking speciality (for chefs).')
+        elif user_type == 'chef' and len(speciality) > 200:
+            errors.append('Speciality must be 200 characters or less.')
 
+        # Password validation: strength then Django validators
         if not password1:
             errors.append('Password is required.')
         else:
-            if len(password1) < 8:
-                errors.append('Password must be at least 8 characters.')
+            strength_errors = _validate_password_strength(password1)
+            if strength_errors:
+                errors.extend(strength_errors)
             elif password1 != password2:
                 errors.append('Passwords do not match.')
             else:
@@ -290,9 +409,56 @@ def register_view(request):
 
 def contact(request):
     if request.method == 'POST':
+        from django.core.mail import send_mail
+        from django.conf import settings
+        import logging
+        logger = logging.getLogger(__name__)
+        name = request.POST.get('name', '').strip()
+        email = request.POST.get('email', '').strip().lower()
+        phone = request.POST.get('phone', '').strip()
+        message = request.POST.get('message', '').strip()
+        errors = []
+        if not name or len(name) < 2:
+            errors.append('Please enter your name (at least 2 characters).')
+        if not email:
+            errors.append('Please enter your email.')
+        elif not EMAIL_REGEX.match(email):
+            errors.append('Please enter a valid email address.')
+        if not message or len(message) < 5:
+            errors.append('Please enter your message (at least 5 characters).')
+        if errors:
+            for e in errors:
+                messages.error(request, e)
+            return render(request, 'core/contact.html', {
+                'form_data': {'name': name, 'email': email, 'phone': phone, 'message': message},
+            })
+        # Always save to database so you never lose a message (view in Django admin)
+        ContactMessage.objects.create(name=name, email=email, phone=phone, message=message)
+        # Send email: to Gmail if EMAIL_HOST_PASSWORD is set, else prints to console (see settings.py)
+        recipient = getattr(settings, 'CONTACT_EMAIL_TO', 'rauniyarbizzay@gmail.com')
+        subject = f'[Ghar Ko Swad] Contact from {name}'
+        body = f'''New contact form submission:
+
+Name: {name}
+Email: {email}
+Phone: {phone or "—"}
+
+Message:
+{message}
+'''
+        try:
+            send_mail(
+                subject=subject,
+                message=body,
+                from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@gharkoswad.com'),
+                recipient_list=[recipient],
+                fail_silently=False,
+            )
+        except Exception as e:
+            logger.exception('Contact form email failed: %s', e)
         messages.success(request, 'Thank you! Your message has been sent. We will get back to you soon.')
         return redirect('core:contact')
-    return render(request, 'core/contact.html')
+    return render(request, 'core/contact.html', {'form_data': {}})
 
 
 def chef_profile(request):
@@ -349,6 +515,11 @@ def food_details(request, item_id):
 
 @login_required(login_url='core:login')
 def chef_dashboard(request):
+    # Authorization: only active chefs
+    if not getattr(request.user, 'is_active', True):
+        auth_logout(request)
+        messages.error(request, 'Your account has been disabled. Please contact support.')
+        return redirect('core:login')
     if _user_role(request.user) != 'chef':
         messages.warning(request, 'Only chefs can access the Chef Dashboard.')
         return redirect('core:index')
@@ -360,7 +531,8 @@ def chef_dashboard(request):
         action = request.POST.get('action')
         if action == 'post_food':
             name = request.POST.get('food_name', '').strip()
-            category = request.POST.get('category', 'other')
+            category = (request.POST.get('category') or '').strip() or 'other'
+            category_custom = request.POST.get('category_custom', '').strip()
             price = request.POST.get('price')
             description = request.POST.get('description', '').strip()
             servings = request.POST.get('servings_available', 10)
@@ -369,12 +541,16 @@ def chef_dashboard(request):
             is_veg = request.POST.get('is_vegetarian') == 'on'
             is_spicy = request.POST.get('is_spicy') == 'on'
             image_file = request.FILES.get('image')
+            if category == 'other' and not category_custom:
+                messages.error(request, 'Please enter your category name when you choose "Other (add your own)".')
+                return redirect('core:chef_dashboard')
             if name and price:
                 try:
                     item = FoodItem(
                         chef=chef,
                         name=name,
                         category=category,
+                        category_custom=category_custom if category == 'other' else '',
                         price=Decimal(price),
                         description=description,
                         servings_available=int(servings) if str(servings).isdigit() else 10,
@@ -396,15 +572,17 @@ def chef_dashboard(request):
         if action == 'order_status':
             order_id = request.POST.get('order_id')
             new_status = request.POST.get('status')
+            old_status = None
             if order_id and new_status:
                 order_obj = Order.objects.filter(chef=chef, id=order_id).first()
                 if order_obj and new_status in dict(Order.STATUS_CHOICES):
+                    old_status = order_obj.status
                     order_obj.status = new_status
                     order_obj.save()
-                    # When marked delivered, reduce food item servings; remove from listings when 0
-                    if new_status == 'delivered' and order_obj.food_item_id:
+                    # When order cancelled, add servings back; servings already reduced when order was placed
+                    if new_status == 'cancelled' and order_obj.food_item_id and old_status != 'cancelled':
                         fi = order_obj.food_item
-                        fi.servings_available = max(0, (fi.servings_available or 0) - order_obj.quantity)
+                        fi.servings_available = (fi.servings_available or 0) + order_obj.quantity
                         fi.save()
                     messages.success(request, 'Order status updated.')
             return redirect('core:chef_dashboard')
@@ -418,6 +596,49 @@ def chef_dashboard(request):
                     review_obj.chef_reply = reply
                     review_obj.save()
                     messages.success(request, 'Reply saved.')
+            return redirect('core:chef_dashboard')
+
+        if action == 'edit_food':
+            food_item_id = request.POST.get('food_item_id')
+            if food_item_id:
+                item = FoodItem.objects.filter(chef=chef, id=food_item_id).first()
+                if item:
+                    name = request.POST.get('food_name', '').strip()
+                    category = (request.POST.get('category') or '').strip() or 'other'
+                    category_custom = request.POST.get('category_custom', '').strip()
+                    price = request.POST.get('price')
+                    description = request.POST.get('description', '').strip()
+                    servings = request.POST.get('servings_available', 10)
+                    availability = request.POST.get('availability', 'daily')
+                    image_url = request.POST.get('image_url', '').strip()
+                    is_veg = request.POST.get('is_vegetarian') == 'on'
+                    is_spicy = request.POST.get('is_spicy') == 'on'
+                    image_file = request.FILES.get('image')
+                    if category == 'other' and not category_custom:
+                        messages.error(request, 'Please enter your category name when you choose "Other (add your own)".')
+                        return redirect('core:chef_dashboard')
+                    if name and price:
+                        try:
+                            item.name = name
+                            item.category = category
+                            item.category_custom = category_custom if category == 'other' else ''
+                            item.price = Decimal(price)
+                            item.description = description
+                            item.servings_available = int(servings) if str(servings).isdigit() else (item.servings_available or 10)
+                            item.availability = availability
+                            item.image_url = image_url
+                            item.is_vegetarian = is_veg
+                            item.is_spicy = is_spicy
+                            if image_file:
+                                item.image = image_file
+                            item.save()
+                            messages.success(request, f'"{name}" has been updated.')
+                        except Exception as e:
+                            messages.error(request, f'Could not update: {e}')
+                    else:
+                        messages.error(request, 'Name and price are required.')
+                else:
+                    messages.error(request, 'Food item not found or you cannot edit it.')
             return redirect('core:chef_dashboard')
 
         if action == 'delete_food':
@@ -453,6 +674,20 @@ def chef_dashboard(request):
     from django.db.models import Avg
     avg_rating = Review.objects.filter(food_item__chef=chef).aggregate(Avg('rating'))['rating__avg'] or 0
 
+    # Algorithm (last updated): multiple linear regression — see core/estimation.py
+    # Estimated portions from rating, review count, order history, price, category.
+    from .estimation import get_estimated_portions_for_chef
+    try:
+        estimation_result = get_estimated_portions_for_chef(chef)
+    except Exception:
+        estimation_result = {'estimates': [], 'total_suggested': 0, 'total_actual_7': 0}
+
+    # Edit mode: when ?edit=id, pass item to pre-fill edit form
+    edit_item = None
+    edit_id = request.GET.get('edit')
+    if edit_id:
+        edit_item = FoodItem.objects.filter(chef=chef, id=edit_id).first()
+
     return render(request, 'core/chef_dashboard.html', {
         'orders': orders,
         'delivered_orders': delivered_orders,
@@ -464,6 +699,8 @@ def chef_dashboard(request):
         'earnings_total': int(earnings_total),
         'earnings_month': int(earnings_month),
         'avg_rating': round(float(avg_rating), 1),
+        'estimation_result': estimation_result,
+        'edit_item': edit_item,
     })
 
 
